@@ -1,0 +1,142 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Single Product Detail -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-3 col-md-1">
+                {% for product_image in side_images %}
+                    <div class="col product-img pb-2">
+                        <img src="{{ product_image.image.url }}" class="small-img img-thumbnail" alt="">
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-9 col-md-4 ps-0">
+                <div class="product-img-box">
+                    <img src="{{ product.image.url }}" id="product-img" class="img-fluid" alt="">
+                </div>
+            </div>
+
+
+            <div class="col-12 col-md-7">
+                <!-- <p>Home / T-Shirt</p> -->
+                <h1>{{ product.name }}</h1>
+                <h4>${{ product.price }}</h4>
+                <form class="row py-4" action="{% url 'add_cart' product.id %}" method="POST" >
+                    {% csrf_token %}
+                    <input type="hidden" name="" id="productId" value="{{ product.id }}">
+                    <input type="hidden" name="variant" value="{{ variant.id }}">
+                    {% if product.variant == "Size" or product.variant == "Size-Color"%}
+                        <div class="col-lg-3">
+                            <select class="form-select" name="size" id="select-size" required>
+                                <option value="" selected>Select Size</option>
+                                {% for item in sizes %}
+                                    <option value="{{ item.size.id }}">{{ item.size }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.variant == "Color" or product.variant == "Size-Color"%}
+                        <div id="ajax-color-variants">
+                            <div class="col-12 product-img py-1">
+                                {% for item in colors %}
+                                <label>
+                                    <input type="radio" class="radio-color" name="color" value="{{ item.color.id }}" required>
+                                    <img src="{{ item.image }}" class="small-img img-thumbnail" alt="">
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="col-lg-2">
+                        <input type="number" class="form-control" name="quantity" value="1" min="1">    
+                    </div>
+                    <div class="pt-3 d-grid gap-2 d-lg-block">
+                        <button type="submit" class="btn btn-dark">Add To Cart</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="container description">
+            <h3>Product Details <i class="fa fa-indent"></i></h3>
+            <br>
+            <p>{{ product.description|safe }}</p>
+        </div>
+    </div>
+
+
+    <!-- Review -->
+    <div class="container my-5">
+        <div class="row">
+            {% if reviews %}
+                <div class="col-md">
+                    <h4>Total Reviews: {{ product.review_count }}</h4>
+                    {% for review in reviews %}
+                        <div class="mb-5">
+                            <p class="fs-3 m-0">{{ review.subject }}</p> 
+                            
+                            {% if review.rating_star %}
+                                <div class="rating">
+                                    {% for rating in review.rating_star %}
+                                        <i class="{{ rating }}" aria-hidden="true"></i>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No reviews yet.</p>
+                            {% endif %}
+                            <p class="lead m-1">{{ review.review }}</p>
+                            <p class="fw-lighter fst-italic">{{ review.reviewer|title }}, {{ review.date_added }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="col-md text-center p-5">
+                    <h5>No reviews yet for this product.</h5>
+                    <p>Be the first to review this product after your purchase. We sincerely appreciate for taking your time to help us!</p>
+                </div>
+            {% endif %}
+
+            <div class="col">
+                <h3 class="fw-normal pb-3">Write a review</h3>
+                <form class="review-form" action="{% url 'review_product' product.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input name="subject" type="text" class="form-control" placeholder="Subject" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <textarea class="form-control" name="review" id="" cols="30" rows="10" placeholder="Write a review" required></textarea> 
+                    </div>
+                    
+                    <div class="input-rating mb-3">
+                        <strong class="text-uppercase fw-normal">Your Rating: </strong>
+                        <div class="stars">
+                            <input class="form-check-input" type="radio" id="star5" name="rating" value="5" required/><label for="star5"></label>
+                            <input class="form-check-input" type="radio" id="star4" name="rating" value="4" /><label for="star4"></label>
+                            <input class="form-check-input" type="radio" id="star3" name="rating" value="3" /><label for="star3"></label>
+                            <input class="form-check-input" type="radio" id="star2" name="rating" value="2" /><label for="star2"></label>
+                            <input class="form-check-input" type="radio" id="star1" name="rating" value="1" /><label for="star1"></label>
+                        </div>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <button type="submit" class="btn btn-dark">Submit</button>
+                    {% else %}
+                        <a href="{% url 'user-login' %}">You must be logged in to write a review.</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+
+
+
+
+
+
+

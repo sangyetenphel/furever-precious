@@ -1,0 +1,50 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block content %}
+    
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <h2 class="fw-lighter pb-lg-3">All Products</h2>
+            </div>
+            <!-- <div class="col">
+                Filter DOGS or CATS
+                <select name="" id="">
+                    <option value="">Default Sorting</option>
+                    <option value="">Sort by price</option>
+                    <option value="">Sort by popularity</option>
+                    <option value="">Sort by rating</option>
+                    <option value="">Sort by sale</option>
+                </select>
+            </div> -->
+        </div>
+
+        <div class="row products-link">
+            {% for product in products %}
+            <a href="{% url 'product' product.id %}" class="col-sm col-md-4 col-lg-3 products">
+                    <img src="{{ product.image.url }}" class="img-fluid" alt="">
+                    <h2>{{ product.name }} <span class="price">${{ product.price }}</span></h2>
+                    {% if product.review_average %}
+                        <div class="rating">
+                            {% for rating in product.review_average %}
+                                <i class="{{ rating }}" aria-hidden="true"></i>
+                            {% endfor %}
+                            {{ product.review_count }} Review{{ product.review_count|pluralize }}
+                        </div>
+                    {% else %}
+                        <p class="pink">No reviews yet.</p>
+                    {% endif %}     
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- <div class="page-btn">
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>&#8594;</span>
+        </div> -->
+    </div>
+
+{% endblock content %}

@@ -1,0 +1,8 @@
+<div class="col-12 product-img py-1">
+    {% for item in colors %}
+    <label>
+        <input type="radio" class="radio-color" value="{{ item.color.id }}" name="color" required>
+        <img src="{{ item.image }}" class="small-img img-thumbnail" alt="">
+    </label>
+    {% endfor %}
+</div>

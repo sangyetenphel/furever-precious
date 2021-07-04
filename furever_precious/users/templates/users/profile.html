@@ -1,0 +1,77 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-2">
+            <img class="img-fluid" src="{{ user.profile.image.url }}" alt="">
+        </div>
+        <div class="col">
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
+        
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Profile Info</legend>
+                    {{ u_form|crispy }}
+                    {{ p_form|crispy }}
+                </fieldset>
+                <button class="btn btn-dark" type="submit">Update</button>
+            </form>
+        </div>
+        <div class="col-2 list-group-flush">
+            <h4 class="fw-normal">QUICK LINKS</h4>
+            <a href="" class="list-group-item list-group-item-action">My profile</a>
+            <a href="#my-comments" class="list-group-item list-group-item-action">My reviews</a>
+            <a href="" class="list-group-item list-group-item-action">My orders</a>
+            <a href="{% url 'change-password' %}" class="list-group-item list-group-item-action">Change Password</a>
+        </div>
+        <div class="table-responsive" id="my-reviews">
+            {% if reviews %}
+                <table class="table mt-5">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Rating</th>
+                            <th>Subject</th>
+                            <th>Review</th>
+                            <th>Date added</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for review in reviews %}
+                            <tr>
+                                <td>
+                                    <div class="cart-info">
+                                        <img src="{{ review.product.image.url }}" alt="">
+                                        <div>
+                                            <p>{{ review.product.name }}</p>
+                                            <small>Price: {{ review.product.price }}</small>
+                                            <br>
+                                            <a href="{% url 'user-review-delete' review.id %}" onclick="return confirm('Delete review for {{ review.product.name }}?');">Remove</a>
+                                        </div>
+                                    </div>     
+                                </td>
+                                <td>{{ review.rating }}/5</td>
+                                <td>{{ review.subject }}</td>
+                                <td>{{ review.review }}</td>
+                                <td>{{ review.date_added }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="p-5 text-center">
+                    <h2>My reviews</h2>
+                    <p>Your haven't reviewed any products yet.</p>
+                    <a href="{% url 'products' %}" class="link">Continue shopping</a>
+                </div>
+            {% endif %}
+        </div>
+    </div> 
+</div>
+
+{% endblock content %}

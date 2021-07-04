@@ -1,0 +1,81 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block content %}
+    {% if cart %}
+        <!-- Cart Items Detail -->
+        <div class="container mt-5 table-responsive-sm">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+
+                {% for order in cart %}
+                    <tr>
+                        <td>
+                            <div class="cart-info">
+                                {% if order.variant %}
+                                    <img src="{{ order.variant.image }}" alt="">
+                                {% else %}
+                                    <img src="{{ order.product.image.url }}" alt="">
+                                {% endif %}
+                                <div>
+                                    <p>{{ order.product.name }} {{ order.variant.size }} {{ order.variant.color }}</p>
+                                    <small>Price: {{ order.product.price }}</small>
+                                    <br>
+                                    <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td><input type="number" class="form-control small-input" value="{{ order.quantity }}" min="1"></td>
+                        <td>${{ order.amount }}</td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+
+            <div class="total-price">
+                <table class="table table-borderless align-self-end">
+                    <tr>
+                        <td>Subtotal</td>
+                        <td>${{ sub_total }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax</td>
+                        <td>$20.00</td>
+                    </tr>
+                    <tfoot>
+                        <tr>
+                            <td>Total</td>
+                            <td>${{ total}}</td>
+                        </tr>
+                </tfoot>
+                </table>
+            </div>
+            <div class="mb-5">
+                <form action="{% url 'create-checkout-session' %}" method="POST">
+                    <button class="btn btn-dark float-end">Make Payment</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="p-5 text-center no-cart">
+            <img src="{% static 'store/images/empty-cart-dog.jpg' %}" alt="">
+            <h2>CART</h2>
+            <p>There are no items in your cart.</p>
+            <a href="{% url 'products' %}" class="link">Continue shopping</a>
+        </div>
+    {% endif %}
+{% endblock content %}
+
+
+
+
+
+
+
+
+
