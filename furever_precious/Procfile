@@ -1,0 +1,1 @@
+web: gunicorn furever_precious.wsgi --log-file -
