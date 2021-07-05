@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-52-g+ao3*or)j6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['furever-precious.herokuapp.com', 'localhost:8000']
+ALLOWED_HOSTS = ['furever-precious.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -127,11 +128,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Create a media folder in project base dir to store user uploaded pics.
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# URL to access user uploaded pics
-MEDIA_URL = '/media/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -160,6 +156,7 @@ CKEDITOR_IMAGE_BACKEND = "pillow"
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': None,
+        "removePlugins": "stylesheetparser",
     },
 }
 
@@ -191,11 +188,33 @@ DATABASES['default'].update(db_from_env)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # The URL to use when referring to static files (where they will be served from)
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Create a media folder in project base dir to store user uploaded pics.
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# URL to access user uploaded pics
+# MEDIA_URL = '/media/'
+
+# Setting up AWS S3
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_URL = os.environ.get('AWS_URL')
+
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'public-read'
+# For ckeditor
+AWS_QUERYSTRING_AUTH = False
+
+# Serving static files & media from Amazon S3
+STATIC_URL = AWS_URL + '/static/'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+MEDIA_URL = AWS_URL + '/media/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
