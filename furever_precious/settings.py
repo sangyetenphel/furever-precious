@@ -36,7 +36,6 @@ ALLOWED_HOSTS = ['furever-precious.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'users.apps.UsersConfig',
@@ -87,18 +86,25 @@ WSGI_APPLICATION = 'furever_precious.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': '5432'
     }
 }
 
 
+# Heroku: Update database configuration from $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -134,20 +140,15 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# What CSS template to use for our Crispy Forms
+# CSS template to use for our Crispy Forms
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# Redirect to home page after successfully logging user in.
-# LOGIN_REDIRECT_URL = 'store-home'
 
-# Where to redirect when user tries to login to a page that requires @login_required
+# Redirect when user tries to login to a page that requires @login_required
 LOGIN_URL = 'user-login'
 
 
-####################################
-    ##  CKEDITOR CONFIGURATION ##
-####################################
-
+# CKEDITOR CONFIGURATION #
 CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
@@ -160,7 +161,6 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-###################################
 
 # Email Settings for Password Reset
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -170,8 +170,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
 
-# if DEBUG:
-#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Stripe Payment
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUB_KEY')
@@ -179,29 +177,7 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_ENDPOINT_SECRET = os.environ.get('STRIPE_ENDPOINT_SECRET')
 
 
-# Heroku: Update database configuration from $DATABASE_URL.
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
-
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-# The absolute path to the directory where collectstatic will collect static files for deployment.
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# The URL to use when referring to static files (where they will be served from)
-# STATIC_URL = '/static/'
-
-# Simplified static file serving.
-# https://warehouse.python.org/project/whitenoise/
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Create a media folder in project base dir to store user uploaded pics.
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# URL to access user uploaded pics
-# MEDIA_URL = '/media/'
-
 # Setting up AWS S3
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
