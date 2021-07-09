@@ -24,24 +24,25 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product', 'quantity', 'price', 'amount']
+    list_display = ['user', 'product', 'product_variant', 'quantity', 'price', 'amount']
 
 
 class OrderProductInline(admin.TabularInline):
     model = OrderProduct
-    readonly_fields = ('user', 'product', 'price', 'quantity', 'amount')
+    readonly_fields = ('product', 'price', 'quantity', 'amount')
     can_delete = False
     extra = 0
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'phone', 'street_address', 'apt_number', 'city', 'state', 'zip_code', 'country' ]
+    list_display = ['name', 'email', 'address','address2', 'city', 'state', 'zip_code', 'country']
     inlines = [OrderProductInline]
+
+    list_filter = ('status',)
 
 
 class OrderProductAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product', 'price', 'quantity', 'amount']
-    list_filter = ['user']
+    list_display = ['product', 'price', 'quantity', 'amount']
 
 
 admin.site.register(Color)
