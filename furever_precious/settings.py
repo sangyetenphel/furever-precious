@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-52-g+ao3*or)j6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['furever-precious.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['furever-precious.herokuapp.com', '127.0.0.1',]
 
 
 # Application definition
@@ -99,7 +99,7 @@ DATABASES = {
 
 
 # Heroku: Update database configuration from $DATABASE_URL.
-db_from_env = dj_database_url.config(conn_max_age=500)
+db_from_env = dj_database_url.config(conn_max_age=600)
 DATABASES['default'].update(db_from_env)
 
 
