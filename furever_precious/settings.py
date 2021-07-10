@@ -179,7 +179,7 @@ STRIPE_ENDPOINT_SECRET = os.environ.get('STRIPE_ENDPOINT_SECRET')
 
 # Static files (CSS, JavaScript, Images)
 # USE_S3 = os.environ.get('USE_S3') == 'TRUE'
-USE_S3 = False
+USE_S3 = True
 if USE_S3:   
     # Setting up AWS S3
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
