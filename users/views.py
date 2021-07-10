@@ -1,5 +1,4 @@
 from store.models import Review
-from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
@@ -7,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 
 # Create your views here.
@@ -59,7 +58,7 @@ def user_profile(request):
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
-    reviews = Review.objects.filter(reviewer=request.user)
+    reviews = Review.objects.filter(user=request.user)
     context = {
         'u_form': u_form,
         'p_form': p_form,
