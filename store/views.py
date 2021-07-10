@@ -184,7 +184,7 @@ def stripe_config(request):
 @csrf_exempt
 def create_checkout_session(request):
     DOMAIN_URL = 'http://localhost:8000/'
-    IMAGE_URL = 'https://fureverprecious-bucket.s3.amazonaws.com/'
+    IMAGE_URL = 'https://fureverprecious-bucket.s3.amazonaws.com/media'
     if request.method == 'POST':
         prev_url = request.META.get('HTTP_REFERER')
         stripe.api_key = settings.STRIPE_SECRET_KEY
