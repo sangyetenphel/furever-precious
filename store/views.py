@@ -183,7 +183,8 @@ def stripe_config(request):
 
 @csrf_exempt
 def create_checkout_session(request):
-    DOMAIN_URL = 'http://furever-precious.herokuapp.com/'
+    DOMAIN_URL = 'http://localhost:8000/'
+    IMAGE_URL = 'https://fureverprecious-bucket.s3.amazonaws.com/'
     if request.method == 'POST':
         prev_url = request.META.get('HTTP_REFERER')
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -193,10 +194,10 @@ def create_checkout_session(request):
         for item in cart:
             if item.product_variant:
                 name = f"{item.product} {item.product_variant.color} {item.product_variant.size}"
-                images = [DOMAIN_URL + item.product_variant.image()] 
+                images = [IMAGE_URL + item.product_variant.image()] 
             else:
                 name = item.product.name
-                images = [DOMAIN_URL + item.product.image.url]
+                images = [IMAGE_URL + item.product.image.url]
         
             line_items_dic = {}
             line_items_dic['price_data'] = {
