@@ -18,7 +18,7 @@ class Product(models.Model):
     
     name = models.CharField(max_length=255)
     SKU = models.CharField(max_length=10, blank=True)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     description = RichTextUploadingField()
     image = models.ImageField(upload_to='products')
     variant = models.CharField(max_length=10, choices=VARIANTS, default='None')
@@ -75,14 +75,14 @@ class Color(models.Model):
 
 
 class Size(models.Model):
-    name = models.CharField(max_length=3)
+    name = models.CharField(max_length=10)
+    code = models.CharField(max_length=5)
     
     def __str__(self):
         return self.name
 
 
 class ProductVariant(models.Model):
-    title = models.CharField(max_length=250)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     size = models.ForeignKey(Size, on_delete=models.SET_NULL, blank=True, null=True)
     color = models.ForeignKey(Color, on_delete=models.SET_NULL, blank=True, null=True)
@@ -93,7 +93,7 @@ class ProductVariant(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.product.name} {self.size.code} {self.color}" 
 
     def image(self):
         img_query_set = ProductImage.objects.filter(id=self.image_id) 
@@ -155,7 +155,7 @@ class Cart(models.Model):
 
     @property
     def amount(self):
-        if self.variant:
+        if self.product_variant:
             return self.quantity * self.product_variant.price
         return self.quantity * self.product.price
 

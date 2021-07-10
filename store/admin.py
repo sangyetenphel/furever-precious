@@ -8,7 +8,7 @@ import admin_thumbnails
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     readonly_fields = ('id',)
-    extra = 1
+    extra = 5
 
 
 class ProductVariantInline(admin.TabularInline):

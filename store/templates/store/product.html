@@ -22,7 +22,7 @@
             <div class="col-12 col-md-7">
                 <!-- <p>Home / T-Shirt</p> -->
                 <h1>{{ product.name }}</h1>
-                <h4>${{ product.price }}</h4>
+                <h4>$<span id="product-price">{{ product.price }}</span></h4>
                 <form class="row py-4" action="{% url 'add_cart' product.id %}" method="POST" >
                     {% csrf_token %}
                     <input type="hidden" name="" id="productId" value="{{ product.id }}">
@@ -31,15 +31,15 @@
                         <div class="col-lg-3">
                             <select class="form-select" name="size" id="select-size" required>
                                 <option value="" selected>Select Size</option>
-                                {% for item in sizes %}
-                                    <option value="{{ item.size.id }}">{{ item.size }}</option>
+                                {% for size in sizes %}
+                                    <option value="{{ size.id }}">{{ size }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     {% endif %}
                     
                     {% if product.variant == "Color" or product.variant == "Size-Color"%}
-                        <div id="ajax-color-variants">
+                        <div id="ajax-variants">
                             <div class="col-12 product-img py-1">
                                 {% for item in colors %}
                                 <label>
@@ -52,7 +52,7 @@
                     {% endif %}
 
                     <div class="col-lg-2">
-                        <input type="number" class="form-control" name="quantity" value="1" min="1">    
+                        <input id="inventory-qty" type="number" class="form-control" name="quantity" value="1" min="1" max="">    
                     </div>
                     <div class="pt-3 d-grid gap-2 d-lg-block">
                         <button type="submit" class="btn btn-dark">Add To Cart</button>

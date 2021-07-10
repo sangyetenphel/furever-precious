@@ -16,21 +16,32 @@
                 {% for order in cart %}
                     <tr>
                         <td>
-                            <div class="cart-info">
-                                {% if order.variant %}
-                                    <img src="{{ order.variant.image }}" alt="">
-                                {% else %}
-                                    <img src="{{ order.product.image.url }}" alt="">
-                                {% endif %}
-                                <div>
-                                    <p>{{ order.product.name }} {{ order.variant.size }} {{ order.variant.color }}</p>
-                                    <small>Price: {{ order.product.price }}</small>
-                                    <br>
-                                    <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
-                                </div>
-                            </div>
+                            <div class="cart-info row">
+                                {% if order.product_variant %}
+                                     <div class="col col-md-3">
+                                         <img src="{{ order.product_variant.image }}" alt="">
+                                     </div>
+                                     <div class="col">
+                                         <p class="mb-0">{{ order.product.name }}</p>
+                                         <p class="fw-light mb-2">{{ order.product_variant.size }} | {{ order.product_variant.color }}</p>
+                                         <small>Price: {{ order.product_variant.price }}</small>
+                                         <br>
+                                         <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                     </div>        
+                                 {% else %}
+                                     <div class="col-3">
+                                         <img src="{{ order.product.image.url }}" alt="">
+                                     </div>
+                                     <div class="col">
+                                         <p>{{ order.product.name }}</p>
+                                         <small>Price: {{ order.product.price }}</small>
+                                         <br>
+                                         <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                     </div>
+                                 {% endif %}
+                             </div>
                         </td>
-                        <td><input type="number" class="form-control small-input" value="{{ order.quantity }}" min="1"></td>
+                        <td><input type="number" class="form-control small-input" value="{{ order.quantity }}" min="1" max="{{ order.product_variant.inventory_quantity}}"></td>
                         <td>${{ order.amount }}</td>
                     </tr>
                 {% endfor %}

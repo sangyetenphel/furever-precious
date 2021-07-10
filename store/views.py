@@ -42,7 +42,7 @@ def product(request, id):
     else:
         variants = ProductVariant.objects.filter(product_id=id)
         if variants:
-            sizes = ProductVariant.objects.raw('SELECT * FROM store_productvariant WHERE product_id=%s GROUP BY size_id',[id])
+            sizes = [p.size for p in ProductVariant.objects.filter(product=product).distinct('size')]
             colors = ProductVariant.objects.filter(product=product, size=variants[0].size)
             variant = ProductVariant.objects.get(id=variants[0].id) 
             context.update({
@@ -64,7 +64,9 @@ def ajax_sizes(request):
             'product_id': product_id,
             'colors': colors
         }
-        data = {'rendered_table': render_to_string('store/product_color_variants.html', context=context)}
+        data = {
+            'rendered_table': render_to_string('store/product_color_variants.html', context=context)
+            }
         return JsonResponse(data)
 
 
@@ -106,7 +108,7 @@ def add_cart(request, id):
     url = request.META.get('HTTP_REFERER')
     product = Product.objects.get(id=id)
     if request.method == 'POST':
-        print(request.POST)
+        # print(request.POST)
         if request.POST['variant']:
             color_id = request.POST['color']
             size_id = request.POST['size']
@@ -117,14 +119,14 @@ def add_cart(request, id):
         if form.is_valid():
             quantity = form.cleaned_data['quantity']
             # Check if the Product with the specific variant is already in Cart or not
-            if Cart.objects.filter(product_id=id, variant=variant):
+            if Cart.objects.filter(product_id=id, product_variant=variant):
                 cart = Cart.objects.get(product_id=id)
                 cart.quantity += quantity
             else:
                 cart = Cart()
                 cart.user = request.user
                 cart.product = product
-                cart.variant = variant
+                cart.product_variant = variant
                 cart.quantity = quantity 
             cart.save()
             messages.success(request, "Your product has been added to cart!")
