@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Avg
 from django.db.models.deletion import SET_NULL
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -57,12 +56,8 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    title = models.CharField(max_length=50, blank=True)
     image = models.ImageField(blank=True, null=True, upload_to="products")
 
-    def __str__(self):
-        return self.title
-    
     class Meta:
         verbose_name_plural = "Product images"
 
@@ -79,7 +74,10 @@ class Size(models.Model):
     code = models.CharField(max_length=5)
     
     def __str__(self):
+        if self.name == None:
+            return "One Size"
         return self.name
+        
 
 
 class ProductVariant(models.Model):
@@ -93,7 +91,10 @@ class ProductVariant(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.product.name} {self.size.code} {self.color}" 
+        if self.size:
+            return f"{self.product.name} {self.size.code} {self.color}" 
+        else:
+            return f"{self.product.name} {self.color}" 
 
     def image(self):
         img_query_set = ProductImage.objects.filter(id=self.image_id) 
@@ -151,6 +152,8 @@ class Cart(models.Model):
 
     @property
     def price(self):
+        if self.product_variant:
+            return self.product_variant.price
         return self.product.price
 
     @property
@@ -171,12 +174,12 @@ class Order(models.Model):
         ('Canceled', 'Canceled'),
     ]
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    code = models.CharField(max_length=5, editable=False)
+    # code = models.CharField(max_length=5, editable=False)
     email = models.EmailField(max_length=265)
     name = models.CharField(max_length=100)
     country = models.CharField(max_length=50)
     address = models.CharField(max_length=150)
-    address2 = models.CharField(max_length=150, blank=True)
+    address2 = models.CharField(max_length=150, blank=True, null=True)
     city = models.CharField(max_length=150)
     zip_code = models.CharField(max_length=10) 
     state = models.CharField(max_length=150)
@@ -185,6 +188,9 @@ class Order(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS, default='New')
 
+    def __str__(self):
+        return f"{self.address} {self.address2}, {self.city}, {self.state}, {self.country} {self.zip_code}"
+
 
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -192,15 +198,28 @@ class OrderProduct(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField()
 
+    def __str__(self):
+        if self.product_variant:
+            return self.product_variant.__str__()
+        return self.product
+
     @property
     def price(self):
+        if self.product_variant:
+            return self.product_variant.price
         return self.product.price
 
     @property
     def amount(self):
-        if self.variant:
+        if self.product_variant:
             return self.quantity * self.product_variant.price
         return self.quantity * self.product.price
+    
+    @property
+    def image(self):
+        if self.product_variant:
+            return self.product_variant.image()
+        return self.product.image.url
 
 
 

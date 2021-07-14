@@ -36,7 +36,10 @@
                                 {% endfor %}
                             </select>
                         </div>
+                    {% else %}
+                        <input type="hidden" name="size" id="" value="None">
                     {% endif %}
+                    
                     
                     {% if product.variant == "Color" or product.variant == "Size-Color"%}
                         <div id="ajax-variants">

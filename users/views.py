@@ -1,4 +1,4 @@
-from store.models import Review
+from store.models import Order, Review
 from django.contrib.auth import authenticate, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
@@ -8,9 +8,11 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmVie
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
+from store.utils import cart_items
 
 # Create your views here.
 def user_login(request):
+    cart_items_total = cart_items(request)
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -20,7 +22,7 @@ def user_login(request):
             return redirect('store-home')
         else:
             messages.error(request, "Login Error! Username or password is incorrect.")
-    return render(request, 'users/login.html')
+    return render(request, 'users/login.html', {'cart_items_total': cart_items_total})
 
 
 def user_logout(request):
@@ -30,6 +32,7 @@ def user_logout(request):
 
 
 def user_register(request):
+    cart_items_total = cart_items(request)
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -41,28 +44,37 @@ def user_register(request):
             return redirect('user-login')
     else:
         form = UserRegistrationForm()
-    return render(request, 'users/register.html', {'form':form})
+        context = {
+            'form':form,
+            'cart_items_total': cart_items_total
+        }
+    return render(request, 'users/register.html', context)
 
 
 @login_required
 def user_profile(request):
+    user = request.user
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile) 
+        u_form = UserUpdateForm(request.POST, instance=user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=user.profile) 
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
             messages.success(request, f'Your account has been updated!')
             return redirect('user-profile')
     else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)
+        u_form = UserUpdateForm(instance=user)
+        p_form = ProfileUpdateForm(instance=user.profile)
 
-    reviews = Review.objects.filter(user=request.user)
+    reviews = Review.objects.filter(user=user)
+    orders = Order.objects.filter(user=user)
+    cart_items_total = cart_items(request)
     context = {
         'u_form': u_form,
         'p_form': p_form,
         'reviews': reviews,
+        'orders': orders,
+        'cart_items_total': cart_items_total
     }
     return render(request, 'users/profile.html', context)
 
@@ -74,6 +86,7 @@ def user_review_delete(request, id):
 
 
 def change_password(request):
+    cart_items_total = cart_items(request)
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -86,7 +99,8 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'users/password_change.html', {
-        'form': form
+        'form': form,
+        'cart_items_total': cart_items_total
     })
 
 

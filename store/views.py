@@ -6,43 +6,59 @@ from django.http.response import HttpResponse, HttpResponseRedirect, JsonRespons
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt 
 from django.shortcuts import redirect, render
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.views.generic import TemplateView
-from .models import Product, ProductVariant, Review, Cart
+from .models import Order, OrderProduct, Product, ProductVariant, Review, Cart
 from .forms import ReviewForm, CartForm
+from .utils import cart_items
 
 # Create your views here.
 def home(request):
+    cart_items_total = cart_items(request)
     context = {
         'title': 'Home',
         'products': Product.objects.all(),
-        'latest_products': Product.objects.order_by('-date_added')[:4]
+        'latest_products': Product.objects.order_by('-date_added')[:4],
+        'cart_items_total': cart_items_total
     }
     return render(request, 'store/home.html', context)
 
 
-def products(request):
+def about(request):
+    cart_items_total = cart_items(request)
     context = {
-        'products': Product.objects.all()
+        'cart_items_total': cart_items_total
+    }
+    return render(request, 'store/about.html', context)
+
+def products(request):
+    cart_items_total = cart_items(request)
+    context = {
+        'products': Product.objects.all(),
+        'cart_items_total': cart_items_total
     }
     return render(request, 'store/products.html', context)
 
 
 def product(request, id):
+    cart_items_total = cart_items(request)
     product = Product.objects.get(pk=id)
     side_images = product.productimage_set.all()[:4]
     context = {
         'product': product,
         'reviews': Review.objects.filter(product=product).order_by('-date_added')[:2],
         'side_images': side_images,
+        'cart_items_total': cart_items_total
     }
     if request.method == 'POST':
        pass
     else:
         variants = ProductVariant.objects.filter(product_id=id)
         if variants:
-            sizes = [p.size for p in ProductVariant.objects.filter(product=product).distinct('size')]
+            sizes = [p.size for p in ProductVariant.objects.filter(product=product).order_by('size', 'date_added').distinct('size')]
+            print(sizes)
             colors = ProductVariant.objects.filter(product=product, size=variants[0].size)
             variant = ProductVariant.objects.get(id=variants[0].id) 
             context.update({
@@ -91,27 +107,40 @@ def review_product(request, id):
 
 @login_required
 def cart(request):
-    cart = Cart.objects.filter(user=request.user)
-    sub_total = 0
-    tax = 20
-    for order in cart:
-        sub_total += order.amount
-    context = {
-        'cart': cart,
-        'sub_total': sub_total,
-        'total': sub_total + tax
-    }
-    return render(request, 'store/cart.html', context)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        product_id = data['productId']
+        product_variant_id = data['productVariantId']
+        quantity = data['quantity']
+        cart = Cart.objects.get(user=request.user, product_id=product_id, product_variant_id = product_variant_id)
+        cart.quantity = quantity
+        cart.save()
+        return JsonResponse("Item quantity updated", safe=False)
+    else:
+        cart = Cart.objects.filter(user=request.user)
+        cart_items_total = cart_items(request)
+        sub_total = 0
+        tax = 20
+        for order in cart:
+            sub_total += order.amount
+        context = {
+            'cart': cart,
+            'sub_total': sub_total,
+            'total': sub_total + tax,
+            'cart_items_total': cart_items_total
+        }
+        return render(request, 'store/cart.html', context)
 
-
+@login_required
 def add_cart(request, id):
     url = request.META.get('HTTP_REFERER')
     product = Product.objects.get(id=id)
     if request.method == 'POST':
-        # print(request.POST)
         if request.POST['variant']:
             color_id = request.POST['color']
             size_id = request.POST['size']
+            if size_id == 'None':
+                size_id = None
             variant = ProductVariant.objects.filter(product_id=id, size_id=size_id, color_id=color_id)[0]
         else: 
             variant = None
@@ -119,7 +148,7 @@ def add_cart(request, id):
         if form.is_valid():
             quantity = form.cleaned_data['quantity']
             # Check if the Product with the specific variant is already in Cart or not
-            if Cart.objects.filter(product_id=id, product_variant=variant):
+            if Cart.objects.filter(user=request.user, product_id=id, product_variant=variant):
                 cart = Cart.objects.get(product_id=id)
                 cart.quantity += quantity
             else:
@@ -141,37 +170,6 @@ def delete_cart(request, id):
     Cart.objects.filter(id=id).delete()
     messages.success(request, "The item has been removed from your cart.")
     return redirect('cart')
-
-
-# def order(request):
-#     cart = Cart.objects.filter(user=request.user)
-#     if request.method == 'POST':
-#         form = OrderForm(request.POST)
-#         if form.is_valid():
-#             # Send credit card info to bank, If the bank responds ok, continue, if not, show the error
-
-#             order = form.save(commit=False)
-#             order.user = request.user
-#             order.save()
-
-#             for cart_item in cart:
-#                 order_product = OrderProduct()
-#                 order_product.order_id = order.id
-#                 order_product.product = cart_item.product
-#                 order_product.user = request.user
-#                 order_product.quantity = cart_item.quantity
-#                 order_product.price = cart_item.product.price
-#                 order_product.amount = order_product.quantity * order_product.price
-#                 order_product.save()
-#             # cart.delete()
-#             # messages.success(request, 'Your order has been completed!')
-#             return render(request, 'store/checkout.html')
-#     else:
-#         form = OrderForm()
-#         context = {
-#             'form': form,
-#         }
-#         return render(request, 'store/order.html', context)
 
 
 @csrf_exempt
@@ -211,15 +209,13 @@ def create_checkout_session(request):
             line_items.append(line_items_dic)
 
         checkout_session = stripe.checkout.Session.create(
-            # customer_email = request.user.email,
             payment_method_types = ['card'],
             shipping_address_collection = {
                 'allowed_countries': ['US', 'CA'],
             },
             line_items = line_items,
             metadata = {
-                # 'product_id': product.id,
-                'user_id': request.user.id
+                'user_id': request.user.id,
             },
             mode='payment',
             success_url = DOMAIN_URL + 'success',
@@ -258,9 +254,30 @@ def stripe_webhook(request):
     return HttpResponse(status=200)
 
 def fulfill_order(session):
-    print(session)
     user_id = session['metadata']['user_id']
-    Cart.objects.filter(user_id=user_id).delete()
+    user = User.objects.get(id=user_id)
+    order = Order()
+    order.user = user
+    order.email = session['customer_details']['email']
+    order.name = session['shipping']['name']
+    order.country = session['shipping']['address']['country']
+    order.address = session['shipping']['address']['line1']
+    order.address2 = session['shipping']['address']['line2']
+    order.city = session['shipping']['address']['city']
+    order.zip_code = session['shipping']['address']['postal_code']
+    order.state = session['shipping']['address']['state']
+    order.total = session['amount_total'] / 100
+    order.save()
+
+    cart = Cart.objects.filter(user=user)
+    for item in cart:
+        order_product = OrderProduct()
+        order_product.order = order
+        order_product.product = item.product
+        order_product.product_variant = item.product_variant
+        order_product.quantity = item.quantity
+        order_product.save()
+    cart.delete()
 
 
 class SuccessView(TemplateView):

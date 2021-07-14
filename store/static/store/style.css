@@ -163,6 +163,13 @@ footer h5 {
     color: black;
 }
 
+
+/* About */
+.shadow-box {
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+
 /* All Products */
 .products-link a {
     text-decoration: none;
@@ -276,7 +283,7 @@ footer h5 {
 
 
 /* Cart Items Detail */
-.table th {
+.cart th {
     background: #ffd6d6;
     font-weight: normal;
     border: none;
@@ -343,6 +350,10 @@ th:last-child, td:last-child {
 
 .login img {
     width: 400px;
+}
+
+.profile img {
+    border-radius: 50%;
 }
 
 /* X-Small devices (portrait phones, less than 576px) */

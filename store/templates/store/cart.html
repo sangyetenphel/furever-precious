@@ -4,7 +4,7 @@
     {% if cart %}
         <!-- Cart Items Detail -->
         <div class="container mt-5 table-responsive-sm">
-            <table class="table">
+            <table class="table cart">
                 <thead>
                     <tr>
                         <th>Product</th>
@@ -23,7 +23,13 @@
                                      </div>
                                      <div class="col">
                                          <p class="mb-0">{{ order.product.name }}</p>
-                                         <p class="fw-light mb-2">{{ order.product_variant.size }} | {{ order.product_variant.color }}</p>
+                                         <p class="fw-light mb-2">
+                                            {% if order.product_variant.size %}
+                                                {{ order.product_variant.size }}
+                                            {% else %}
+                                                One Size
+                                            {% endif %} | {{ order.product_variant.color }}
+                                        </p>
                                          <small>Price: {{ order.product_variant.price }}</small>
                                          <br>
                                          <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
@@ -41,7 +47,7 @@
                                  {% endif %}
                              </div>
                         </td>
-                        <td><input type="number" class="form-control small-input" value="{{ order.quantity }}" min="1" max="{{ order.product_variant.inventory_quantity}}"></td>
+                        <td><input data-product="{{ order.product.id }}" data-productvariant="{{ order.product_variant.id }}" class="cart-qty" type="number" class="form-control small-input" value="{{ order.quantity }}" min="1" max="{{ order.product_variant.inventory_quantity}}"></td>
                         <td>${{ order.amount }}</td>
                     </tr>
                 {% endfor %}
