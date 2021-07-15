@@ -200,6 +200,7 @@ def create_checkout_session(request):
             line_items_dic['price_data'] = {
                 'currency': 'usd',
                 'unit_amount': int(item.price * 100),
+                'tax_behavior': "exclusive",
                 'product_data': {
                     'name': name,
                     'images': images,
@@ -216,6 +217,9 @@ def create_checkout_session(request):
             line_items = line_items,
             metadata = {
                 'user_id': request.user.id,
+            },
+            automatic_tax = {
+                'enabled': True,
             },
             mode='payment',
             success_url = DOMAIN_URL + 'success',

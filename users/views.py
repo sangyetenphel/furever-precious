@@ -1,13 +1,13 @@
 from store.models import Order, Review
 from django.contrib.auth import authenticate, logout, update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
+# from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, UserPasswordChangeForm
 from store.utils import cart_items
 
 # Create your views here.
@@ -44,10 +44,10 @@ def user_register(request):
             return redirect('user-login')
     else:
         form = UserRegistrationForm()
-        context = {
-            'form':form,
-            'cart_items_total': cart_items_total
-        }
+    context = {
+        'form':form,
+        'cart_items_total': cart_items_total
+    }
     return render(request, 'users/register.html', context)
 
 
@@ -88,7 +88,7 @@ def user_review_delete(request, id):
 def change_password(request):
     cart_items_total = cart_items(request)
     if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
+        form = UserPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
@@ -97,7 +97,7 @@ def change_password(request):
         else:
             messages.error(request, 'Please correct the error below.')
     else:
-        form = PasswordChangeForm(request.user)
+        form = UserPasswordChangeForm(request.user)
     return render(request, 'users/password_change.html', {
         'form': form,
         'cart_items_total': cart_items_total
