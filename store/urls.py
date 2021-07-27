@@ -10,12 +10,13 @@ urlpatterns = [
     path('product/<int:id>', views.product, name='product'),
     path('review_product/<int:id>', views.review_product, name="review_product"),
     path('cart', views.cart, name='cart'),
-    path('add_cart/<int:id>', views.add_cart, name='add_cart'),
+    # path('add_cart/<int:id>', views.add_cart, name='add_cart'),
     path('delete_cart/<int:id>', views.delete_cart, name='delete_cart'),
     path('ajax_sizes', views.ajax_sizes, name='ajax_sizes'),
+    # path('get_productvariant', views.get_productvariant, name='get_productvariant'),
     path('stripe_config/', views.stripe_config, name='stripe_config'),
     path('create-checkout-session/', views.create_checkout_session, name='create-checkout-session'),
-    path('success/', views.SuccessView.as_view()),
+    path('success/', views.success_order, name='success-order'),
     path('webhook', views.stripe_webhook),
 ]
 

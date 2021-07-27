@@ -58,6 +58,7 @@ a:hover {
     transition: transform 0.5s;
     color: #555;
     font-weight: lighter;
+    text-decoration: none;
 }
 
 .products:hover {

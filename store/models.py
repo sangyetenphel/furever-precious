@@ -23,6 +23,7 @@ class Product(models.Model):
     variant = models.CharField(max_length=10, choices=VARIANTS, default='None')
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    featured = models.BooleanField(default=False)
 
     def  __str__(self):
         return self.name
@@ -145,7 +146,9 @@ class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     product_variant = models.ForeignKey(ProductVariant, on_delete=SET_NULL, blank=True, null=True)
-    quantity = models.IntegerField() 
+    quantity = models.IntegerField(default=1) 
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.product.name
@@ -165,13 +168,12 @@ class Cart(models.Model):
 
 class Order(models.Model):
     ORDER_STATUS = [
-        ('New', 'New'),
-        ('Accepted', 'Accepted'),
-        ('Preparing', 'Preparing'),
+        ('Awaiting Payment', 'Awaiting Payment'),
+        ('Paid', 'Paid'),
         ('On Shipping', 'On Shipping'),
         ('Completed', 'Completed'),
-        ('Refunded', 'Refunded'),
-        ('Canceled', 'Canceled'),
+        ('Payment Failed', 'Payment Failed'),
+        ('Cancelled', 'Cancelled')
     ]
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # code = models.CharField(max_length=5, editable=False)
@@ -186,7 +188,7 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=15, choices=ORDER_STATUS, default='New')
+    status = models.CharField(max_length=20, choices=ORDER_STATUS)
 
     def __str__(self):
         return f"{self.address} {self.address2}, {self.city}, {self.state}, {self.country} {self.zip_code}"

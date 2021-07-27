@@ -7,10 +7,10 @@ class ReviewForm(ModelForm):
         fields = ['subject', 'review', 'rating']
 
 
-class CartForm(ModelForm):
-    class Meta:
-        model = Cart    
-        fields = ['product_variant', 'quantity']
+# class CartForm(ModelForm):
+#     class Meta:
+#         model = Cart    
+#         fields = ['product_variant', 'quantity']
 
 
 class OrderForm(ModelForm):

@@ -23,10 +23,9 @@
                 <!-- <p>Home / T-Shirt</p> -->
                 <h1>{{ product.name }}</h1>
                 <h4>$<span id="product-price">{{ product.price }}</span></h4>
-                <form class="row py-4" action="{% url 'add_cart' product.id %}" method="POST" >
+                <form id="add_cart_form" class="row py-4">
                     {% csrf_token %}
                     <input type="hidden" name="" id="productId" value="{{ product.id }}">
-                    <input type="hidden" name="variant" value="{{ variant.id }}">
                     {% if product.variant == "Size" or product.variant == "Size-Color"%}
                         <div class="col-lg-3">
                             <select class="form-select" name="size" id="select-size" required>
@@ -58,7 +57,7 @@
                         <input id="inventory-qty" type="number" class="form-control" name="quantity" value="1" min="1" max="">    
                     </div>
                     <div class="pt-3 d-grid gap-2 d-lg-block">
-                        <button type="submit" class="btn btn-dark">Add To Cart</button>
+                        <button type="submit" class="btn btn-dark cart-qty">Add To Cart</button>
                     </div>
                 </form>
             </div>

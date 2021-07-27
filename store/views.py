@@ -1,4 +1,5 @@
-import json 
+import json
+from django.http import request 
 import stripe
 
 from django.contrib import messages
@@ -11,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.views.generic import TemplateView
 from .models import Order, OrderProduct, Product, ProductVariant, Review, Cart
-from .forms import ReviewForm, CartForm
+from .forms import ReviewForm
 from .utils import cart_items
 
 # Create your views here.
@@ -20,7 +21,7 @@ def home(request):
     context = {
         'title': 'Home',
         'products': Product.objects.all(),
-        'latest_products': Product.objects.order_by('-date_added')[:4],
+        'featured_products': Product.objects.filter(featured = True)[:4],
         'cart_items_total': cart_items_total
     }
     return render(request, 'store/home.html', context)
@@ -58,7 +59,6 @@ def product(request, id):
         variants = ProductVariant.objects.filter(product_id=id)
         if variants:
             sizes = [p.size for p in ProductVariant.objects.filter(product=product).order_by('size', 'date_added').distinct('size')]
-            print(sizes)
             colors = ProductVariant.objects.filter(product=product, size=variants[0].size)
             variant = ProductVariant.objects.get(id=variants[0].id) 
             context.update({
@@ -105,22 +105,37 @@ def review_product(request, id):
             messages.error(request, "Error reviewing product. Try again!")
             return redirect('product', id=product.id)
 
-@login_required
+
+# def get_productvariant(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+#         product_id = data['productId']
+#         size_id = int(data['sizeId'])
+#         color_id = data['colorId']
+#         product_variant = ProductVariant.objects.filter(product_id=product_id, size_id=size_id, color_id=color_id)[0]
+#         return JsonResponse(product_variant.id, safe=False)
+
+
 def cart(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         product_id = data['productId']
-        product_variant_id = data['productVariantId']
+        size_id = int(data['sizeId'])
+        color_id = data['colorId']
         quantity = data['quantity']
-        cart = Cart.objects.get(user=request.user, product_id=product_id, product_variant_id = product_variant_id)
-        cart.quantity = quantity
+        product_variant = ProductVariant.objects.filter(product_id=product_id, size_id=size_id, color_id=color_id)[0]
+        cart, created = Cart.objects.get_or_create(user=request.user, product_id=product_id, product_variant = product_variant)
+        if created == True:
+            cart.quantity = quantity
+        else:
+            cart.quantity += int(quantity)
         cart.save()
         return JsonResponse("Item quantity updated", safe=False)
     else:
-        cart = Cart.objects.filter(user=request.user)
+        cart = Cart.objects.filter(user=request.user).order_by('date_added')
         cart_items_total = cart_items(request)
         sub_total = 0
-        tax = 20
+        tax = 0
         for order in cart:
             sub_total += order.amount
         context = {
@@ -131,39 +146,40 @@ def cart(request):
         }
         return render(request, 'store/cart.html', context)
 
-@login_required
-def add_cart(request, id):
-    url = request.META.get('HTTP_REFERER')
-    product = Product.objects.get(id=id)
-    if request.method == 'POST':
-        if request.POST['variant']:
-            color_id = request.POST['color']
-            size_id = request.POST['size']
-            if size_id == 'None':
-                size_id = None
-            variant = ProductVariant.objects.filter(product_id=id, size_id=size_id, color_id=color_id)[0]
-        else: 
-            variant = None
-        form = CartForm(request.POST)
-        if form.is_valid():
-            quantity = form.cleaned_data['quantity']
-            # Check if the Product with the specific variant is already in Cart or not
-            if Cart.objects.filter(user=request.user, product_id=id, product_variant=variant):
-                cart = Cart.objects.get(product_id=id)
-                cart.quantity += quantity
-            else:
-                cart = Cart()
-                cart.user = request.user
-                cart.product = product
-                cart.product_variant = variant
-                cart.quantity = quantity 
-            cart.save()
-            messages.success(request, "Your product has been added to cart!")
-        else:
-            print(form.errors)
-            return HttpResponse(form.errors)
+
+# @login_required
+# def add_cart(request, id):
+#     url = request.META.get('HTTP_REFERER')
+#     product = Product.objects.get(id=id)
+#     if request.method == 'POST':
+#         if request.POST['variant']:
+#             color_id = request.POST['color']
+#             size_id = request.POST['size']
+#             if size_id == 'None':
+#                 size_id = None
+#             variant = ProductVariant.objects.filter(product_id=id, size_id=size_id, color_id=color_id)[0]
+#         else: 
+#             variant = None
+#         form = CartForm(request.POST)
+#         if form.is_valid():
+#             quantity = form.cleaned_data['quantity']
+#             # Check if the Product with the specific variant is already in Cart or not
+#             if Cart.objects.filter(user=request.user, product_id=id, product_variant=variant):
+#                 cart = Cart.objects.get(product_id=id)
+#                 cart.quantity += quantity
+#             else:
+#                 cart = Cart()
+#                 cart.user = request.user
+#                 cart.product = product
+#                 cart.product_variant = variant
+#                 cart.quantity = quantity 
+#             cart.save()
+#             messages.success(request, "Your product has been added to cart!")
+#         else:
+#             print(form.errors)
+#             return HttpResponse(form.errors)
             
-    return HttpResponseRedirect(url)
+#     return HttpResponseRedirect(url)
 
 
 def delete_cart(request, id):
@@ -200,7 +216,7 @@ def create_checkout_session(request):
             line_items_dic['price_data'] = {
                 'currency': 'usd',
                 'unit_amount': int(item.price * 100),
-                'tax_behavior': "exclusive",
+                # 'tax_behavior': "exclusive",
                 'product_data': {
                     'name': name,
                     'images': images,
@@ -218,9 +234,9 @@ def create_checkout_session(request):
             metadata = {
                 'user_id': request.user.id,
             },
-            automatic_tax = {
-                'enabled': True,
-            },
+            # automatic_tax = {
+            #     'enabled': True,
+            # },
             mode='payment',
             success_url = DOMAIN_URL + 'success',
             cancel_url = prev_url,
@@ -251,13 +267,35 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
 
-        # Fulfill the purchase...
+        # Save an order in your database, marked as 'awaiting payment'
+        create_order(session)
+
+        # Check if the order is already paid (e.g., from a card payment)
+        #
+        # A delayed notification payment will have an `unpaid` status, as
+        # you're still waiting for funds to be transferred from the customer's
+        # account.
+        if session.payment_status == "paid":
+            # Fulfill the purchase
+            fulfill_order(session)
+
+    elif event['type'] == 'checkout.session.async_payment_succeeded':
+        session = event['data']['object']
+
+        # Fulfill the purchase
         fulfill_order(session)
+
+    elif event['type'] == 'checkout.session.async_payment_failed':
+        session = event['data']['object']
+
+        # Send an email to the customer asking them to retry their order
+        email_customer_about_failed_payment(session)
 
     # Passed signature verification
     return HttpResponse(status=200)
 
-def fulfill_order(session):
+
+def create_order(session):
     user_id = session['metadata']['user_id']
     user = User.objects.get(id=user_id)
     order = Order()
@@ -271,7 +309,9 @@ def fulfill_order(session):
     order.zip_code = session['shipping']['address']['postal_code']
     order.state = session['shipping']['address']['state']
     order.total = session['amount_total'] / 100
+    order.status = 'Awaiting Payment'
     order.save()
+    session['metadata']['order_id'] = order.id
 
     cart = Cart.objects.filter(user=user)
     for item in cart:
@@ -284,5 +324,17 @@ def fulfill_order(session):
     cart.delete()
 
 
-class SuccessView(TemplateView):
-    template_name = 'store/success.html'
+def fulfill_order(session):
+    order_id = session['metadata']['order_id']
+    order = Order.objects.get(id = order_id)
+    order.status = "Paid"
+    order.save()
+
+
+def success_order(request):
+    cart_items_total = cart_items(request)
+    return render(request, 'store/success.html', {'cart_items_total': cart_items_total})
+
+
+def email_customer_about_failed_payment(session):
+    pass

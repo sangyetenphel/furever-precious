@@ -8,7 +8,7 @@
             <h1 class="fw-normal">Pet Supplies, Save Lives</h1>
                 <p>We offer the most exciting and unique pet products on the market today ranging from clothes, beds, leashes, and many more!
                 What we really are proud of is being able to give back to those without voices of their own.</p>
-                <a href="" class="btn btn-dark">Learn More</a>
+                <a href="{% url 'about' %}" class="btn btn-dark">Learn More</a>
             </div>
             <div class="col">
                 <img src="{% static 'store/images/showcase.png' %}" class="img-fluid" alt="">
@@ -20,8 +20,8 @@
     <div class="container mb-5">
         <h2 class="title">Featured Products</h2>
         <div class="row">
-            {% for product in latest_products %}
-                <div class="col-md-6 col-lg-3 products">
+            {% for product in featured_products %}
+                <a href="{% url 'product' product.id %}" class="col-md-6 col-lg-3 products">
                     <img src="{{ product.image.url }}" class="img-fluid" alt="">
                     <h2>{{ product.name }} <span class="price">${{ product.price }}</span></h2>
                     {% if product.review_average %}
@@ -34,8 +34,8 @@
                     {% else %}
                         <span class="pink">New!</span>
                     {% endif %}
-                    
-                </div>
+                  
+                </a>
             {% endfor %}
         </div>
     </div>
@@ -50,7 +50,7 @@
                 <p>Exclusively Available On Pre-Order</p>
                 <h1>Cat Window Hammock</h1>
                 <p>Safety suction cups powered cat window hammock saving space, use as a mounted cat window perch bed, ideal for a sunbath.</p>
-                <a href="" class="btn btn-dark">Pre-Order Now</a>
+                <a href="mailto: fureverpreciouspets@gmail.com" class="btn btn-dark">Pre-Order Now</a>
             </div>
         </div>
     </div>
@@ -61,42 +61,42 @@
             <div class="row justify-content-evenly p-5 p-sm-0">
                 <div class="col-md-3 testimonial">
                     <i class="fa fa-quote-left"></i>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti rem sint eius dolore a numquam cum nulla, officia quasi iste similique quos expedita inventore maxime debitis suscipit asperiores totam tenetur.</p>
+                    <p>What I found really cool about Furever Precious is that despite being a small company, they have the best service and customer satifaction is guaranteed. No excuses on exchange or refund process.</p>
                     <div class="rating">
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
-                        <i class="fas fa-star-half-alt"></i>
+                        <i class="fas fa-star" aria-hidden="true"></i>
                     </div>
                     <img src="{% static 'store/images/user-1.png' %}" alt="">
-                    <h3>Sean Parker</h3>
+                    <h3>Cheyenne Parker</h3>
                 </div>
                 <div class="col-md-3 m-5 my-sm-0 testimonial">
                     <i class="fa fa-quote-left"></i>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti rem sint eius dolore a numquam cum nulla, officia quasi iste similique quos expedita inventore maxime debitis suscipit asperiores totam tenetur.</p>
+                    <p>You can really tell they put the work in and truly care about pets in general. They help in pet rescue and foster which further proves my point. (You will be greeted by a small frenchie Cyrus if you visit their store!)</p>
                     <div class="rating">
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
-                        <i class="fas fa-star-half-alt"></i>
+                        <i class="fas fa-star" aria-hidden="true"></i>
                     </div>
                     <img src="{% static 'store/images/user-2.png' %}" alt="">
-                    <h3>Sean Parker</h3>
+                    <h3>Sean Deans</h3>
                 </div>
                 <div class="col-md-3 testimonial">
                     <i class="fa fa-quote-left"></i>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti rem sint eius dolore a numquam cum nulla, officia quasi iste similique quos expedita inventore maxime debitis suscipit asperiores totam tenetur.</p>
+                    <p>The best pet supply store for me. They have products I couldn't find anywhere else such as Amazon and Target. A true gem for us pet owners who want unique and amazing products for our Furever Precious Pets.</p>
                     <div class="rating">
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
-                        <i class="fas fa-star-half-alt"></i>
+                        <i class="fas fa-star" aria-hidden="true"></i>
                     </div>
                     <img src="{% static 'store/images/user-3.png' %}" alt="">
-                    <h3>Sean Parker</h3>
+                    <h3>Sabrina Lynn</h3>
                 </div>
             </div>
         </div>
