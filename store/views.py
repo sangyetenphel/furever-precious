@@ -106,32 +106,8 @@ def review_product(request, id):
             return redirect('product', id=product.id)
 
 
-# def get_productvariant(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body)
-#         product_id = data['productId']
-#         size_id = int(data['sizeId'])
-#         color_id = data['colorId']
-#         product_variant = ProductVariant.objects.filter(product_id=product_id, size_id=size_id, color_id=color_id)[0]
-#         return JsonResponse(product_variant.id, safe=False)
-
-
 def cart(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        product_id = data['productId']
-        size_id = int(data['sizeId'])
-        color_id = data['colorId']
-        quantity = data['quantity']
-        product_variant = ProductVariant.objects.filter(product_id=product_id, size_id=size_id, color_id=color_id)[0]
-        cart, created = Cart.objects.get_or_create(user=request.user, product_id=product_id, product_variant = product_variant)
-        if created == True:
-            cart.quantity = quantity
-        else:
-            cart.quantity += int(quantity)
-        cart.save()
-        return JsonResponse("Item quantity updated", safe=False)
-    else:
+    if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).order_by('date_added')
         cart_items_total = cart_items(request)
         sub_total = 0
@@ -144,7 +120,57 @@ def cart(request):
             'total': sub_total + tax,
             'cart_items_total': cart_items_total
         }
-        return render(request, 'store/cart.html', context)
+    else:
+        try: 
+            cookie_cart = json.loads(request.COOKIES['cart'])
+        except:
+            cookie_cart = {}
+        cart_items_total = 0
+        sub_total = 0
+        cart = []
+        print(f"cookie_cart: {cookie_cart}")
+        for product, variants in cookie_cart.items():
+            print(f"--------------{product}")
+            product = Product.objects.get(id=product)
+            print(product)
+            for variant in variants:
+                if variant['sizeId'] == "None":
+                    product_variant = ProductVariant.objects.filter(product=product, color_id = variant['colorId'])[0]
+                else:
+                    product_variant = ProductVariant.objects.filter(product=product, size_id = variant['sizeId'], color_id = variant['colorId'])[0]
+                cart_items_total += variant['quantity']
+                if product_variant:
+                    amount = variant['quantity'] * product_variant.price
+                else:
+                    amount = variant['quantity'] * product.price
+                sub_total += amount
+                cart.append({
+                    'product': product,
+                    'product_variant': product_variant,
+                    'quantity': variant['quantity'],
+                    'amount': amount
+                })
+        context = {
+            'cart': cart,
+            'sub_total': sub_total,
+            'total': sub_total,
+            'cart_items_total': cart_items_total
+        }
+    return render(request, 'store/cart.html', context)
+        
+
+def add_cart(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        product_id = data['productId']
+        size_id = int(data['sizeId'])
+        color_id = data['colorId']
+        quantity = data['quantity']
+        product_variant = ProductVariant.objects.filter(product_id=product_id, size_id=size_id, color_id=color_id)[0]
+        cart, created = Cart.objects.get_or_create(user=request.user, product_id=product_id, product_variant = product_variant)
+        cart.quantity = quantity
+        cart.save()
+        return JsonResponse("Item quantity updated", safe=False)
 
 
 # @login_required

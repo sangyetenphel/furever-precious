@@ -30,9 +30,11 @@
                                                 One Size
                                             {% endif %} | {{ order.product_variant.color }}
                                         </p>
-                                         <small>Price: {{ order.product_variant.price }}</small>
-                                         <br>
-                                         <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                        <small>Price: {{ order.product_variant.price }}</small>
+                                        <br>
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                        {% endif %}
                                      </div>        
                                  {% else %}
                                      <div class="col-3">
@@ -42,12 +44,21 @@
                                          <p>{{ order.product.name }}</p>
                                          <small>Price: {{ order.product.price }}</small>
                                          <br>
-                                         <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                        {% endif %}
                                      </div>
                                  {% endif %}
                              </div>
                         </td>
-                        <td><input data-product="{{ order.product.id }}" data-productvariant="{{ order.product_variant.id }}" class="cart-qty" type="number" class="form-control small-input" value="{{ order.quantity }}" min="1" max="{{ order.product_variant.inventory_quantity}}"></td>
+                        <!-- <td><input data-product="{{ order.product.id }}" data-size="{{ order.product_variant.size.id }}" data-color="{{ order.product_variant.color.id }}" class="cart-qty" type="number" class="form-control small-input" value="{{ order.quantity }}" min="1" max="{{ order.product_variant.inventory_quantity}}"></td> -->
+                        <td>
+                            <div class="btn-group plus-minus" data-product="{{ order.product.id }}" data-size="{{ order.product_variant.size.id }}" data-color="{{ order.product_variant.color.id }} role="group">
+                                <button type="button" class="btn btn-outline-danger subtract"><i class="fas fa-minus"></i></button>
+                                <button type="button" class="btn btn-outline-danger item-qty">{{ order.quantity }}</button>
+                                <button type="button" class="btn btn-outline-danger add"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </td>
                         <td>${{ order.amount }}</td>
                     </tr>
                 {% endfor %}
@@ -67,7 +78,7 @@
                     <tfoot>
                         <tr>
                             <td>Total</td>
-                            <td>${{ total}}</td>
+                            <td>${{ total }}</td>
                         </tr>
                 </tfoot>
                 </table>

@@ -30,32 +30,6 @@ function checkCookie() {
 let cart = checkCookie();
 console.log("Cart:", cart)
 
-// function getProductVariant(productId, sizeId, colorId) {
-//     const url = '/get_productvariant'
-
-//     return fetch(url, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-CSRFToken': csrftoken,
-//         },
-//         body: JSON.stringify({
-//             'productId': productId,
-//             'sizeId': sizeId,
-//             'colorId': colorId
-//         })
-//     })
-
-//     .then((response) => response.json())
-//     .then(data => {
-//         console.log("Success:", data);
-//         return data
-//     })
-//     .catch((error) => {
-//         console.error('Error:', error);
-//     })
-// }
-
  
 // Add to cart for authorized and unauthorized users
 document.querySelector('#add_cart_form').addEventListener('submit', (event) => {
@@ -63,10 +37,7 @@ document.querySelector('#add_cart_form').addEventListener('submit', (event) => {
     const sizeId = event.target.elements.size.value;
     const colorId = event.target.elements.color.value;
     const quantity = document.querySelector('#inventory-qty').value 
-    // const productVariantId = getProductVariant(productId, sizeId, colorId).then(function(result) {
-    //     console.log(result)
-    // })
-    // console.log("--------" + productVariantId )
+
     if (user === 'AnonymousUser') {
         // Handle cart for unauthenticated user
         updateUserCookie(quantity, productId, sizeId, colorId)
@@ -79,55 +50,70 @@ document.querySelector('#add_cart_form').addEventListener('submit', (event) => {
 
 
 
-// Update the item quantites in cart
-document.querySelectorAll('.cart-qty').forEach(qty => {
-    qty.onchange = () => {
-        const quantity = qty.value
-        const productId = qty.dataset.product
-        const productVariantId = qty.dataset.productvariant
 
-        if (user === 'AnonymousUser') {
-            console.log('hi')
-        }
-        else {
-            updateUserOrder(quantity, productId, productVariantId)
-        }
+// Update the item quantites in cart
+// document.querySelectorAll('.cart-qty').forEach(qty => {
+//     qty.onchange = () => {
+//         const quantity = qty.value
+//         const productId = qty.dataset.product
+//         const sizeId = qty.dataset.size
+//         const colorId = qty.dataset.color
+
+//         if (user == 'AnonymousUser') {
+//             updateUserCookie(quantity, productId, sizeId, colorId)
+//         }
+//         else {
+//             updateUserOrder(quantity, productId, sizeId, colorId)
+//         }
+//     }
+// })
+
+
+// Update item quantities
+var plusMinus = document.querySelector('.plus-minus')
+plusMinus.addEventListener('click', function(e) {
+    const productId = e.currentTarget.dataset.productId
+    const sizeId = e.currentTarget.dataset.sizeId
+    const colorId = e.currentTarget.dataset.colorId
+    var action = ''
+
+    if (e.target.classList.contains('add') || e.target.classList.contains('fa-plus')) {
+        action = 'add';
+    } else if (e.target.classList.contains('subtract') || e.target.classList.contains('fa-minus')) {
+        action = 'subtract';
+    }
+
+    if (user == 'AnonymousUser') {
+        updateUserCookie(quantity, productId, sizeId, colorId, action)
+    }
+    else {
+        updateUserOrder(quantity, productId, sizeId, colorId, action)
     }
 })
 
 
+
 // Add/Update cart for unauthorized users
-function updateUserCookie(quantity, productId, sizeId, colorId) {
+function updateUserCookie(quantity=1, productId, sizeId, colorId, action) {
     quantity = parseInt(quantity)
     if (cart[productId] == undefined) {
         cart[productId] = [{'sizeId': sizeId, 'colorId': colorId, 'quantity': quantity}]
-        // cart[productId][sizeId] = {'colorId': colorId}
-        // cart[productId][sizeId][colorId] = {'quantity': quantity}
     }
     else {
         var found = false
         for (var i=0; i < cart[productId].length; i++) {
             if (cart[productId][i]['sizeId'] == sizeId && cart[productId][i]['colorId'] == colorId) {
-                cart[productId][i]['quantity'] += 1
+                if (action == 'subtract') {
+                    cart[productId][i]['quantity'] -= quantity
+                } else {
+                    cart[productId][i]['quantity'] += quantity
+                }
                 found = true
             }
         }
         if (found == false) {
             cart[productId].push({'sizeId': sizeId, 'colorId': colorId, 'quantity': quantity})
         }
-
-        // if (cart[productId]['sizeId'] == sizeId && cart[productId][sizeId]['colorId'] == colorId) {
-        //     console.log('hi')
-        //     cart[productId][sizeId][colorId]['quantity'] += quantity
-        // } else if (cart[productId]['sizeId'] == sizeId) {
-        //     console.log('bye')
-        //     cart[productId][sizeId] = {'colorId': colorId}
-        //     cart[productId][sizeId][colorId] = {'quantity': quantity}
-        // } else {    
-        //     console.log('hasdkhadshuk')
-        //     cart[productId][sizeId] = {'colorId': colorId}
-        //     cart[productId][sizeId][colorId] = {'quantity': quantity}
-        // }
     }
     setCookie("cart", cart)
     console.log('Cart:', cart)
@@ -135,8 +121,8 @@ function updateUserCookie(quantity, productId, sizeId, colorId) {
 
 
 // Add/Update cart for authorized users
-function updateUserOrder(quantity, productId, sizeId, colorId) {
-    const url = '/cart'
+function updateUserOrder(quantity=1, productId, sizeId, colorId) {
+    const url = '/add_cart'
 
     fetch(url, {
         method: 'POST',

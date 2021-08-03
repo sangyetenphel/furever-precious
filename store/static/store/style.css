@@ -137,12 +137,6 @@ a:hover {
     border-radius: 50%;
 }
 
-
-/* Brands */
-/* .brands {
-    margin: 50px auto;
-} */
-
 /* Footer */
 footer {
     border-top: 1px solid rgb(211, 209, 209);
@@ -311,6 +305,31 @@ td img {
     width: 80px;
     height: 80px;
     margin-right: 10px;
+}
+
+.plus-minus button {
+    border: 1px solid #f5c6c6;
+    color: black;
+}
+
+.plus-minus button:hover{
+    background: #fc9d9d;
+    border: 1px solid rgb(230, 230, 230);
+}
+
+.plus-minus button:focus {
+    border-color: rgba(250, 142, 160, 0.8);
+    box-shadow: 0 1px 1px rgba(248, 147, 147, 0.075) inset, 0 0 8px rgba(255, 121, 139, 0.6);
+    outline: 0 none;
+}
+
+.plus-minus button:hover:nth-child(2) {
+    background-color: unset !important;
+    color: unset !important;
+}
+
+.plus-minus i {
+    font-size: 12px;
 }
 
 .total-price {
