@@ -151,7 +151,7 @@ class Cart(models.Model):
 
     def __str__(self):
         return self.product.name
-
+        
     @property
     def price(self):
         if self.product_variant:
@@ -163,7 +163,7 @@ class Cart(models.Model):
         if self.product_variant:
             return self.quantity * self.product_variant.price
         return self.quantity * self.product.price
-
+    
 
 class Order(models.Model):
     ORDER_STATUS = [

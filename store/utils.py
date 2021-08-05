@@ -2,15 +2,22 @@ import json
 from .models import Cart, Product, ProductVariant
 
 def cart_items(request):
+    cart_items_total = 0
     if  request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user)
-        total = 0
         for items in cart:
-            total += items.quantity
-        return total
+            cart_items_total += items.quantity
     else:
-        return 0
-
+        try: 
+            cookie_cart = json.loads(request.COOKIES['cart'])
+        except:
+            cookie_cart = {}
+        for variants in cookie_cart.values():
+            for variant in variants:
+                cart_items_total += variant['quantity']
+    return cart_items_total
+        
+        
 def cookie_cart(request):
     try: 
         cookie_cart = json.loads(request.COOKIES['cart'])
@@ -19,11 +26,8 @@ def cookie_cart(request):
     cart_items_total = 0
     sub_total = 0
     cart = []
-    # print(f"cookie_cart: {cookie_cart}")
     for product, variants in cookie_cart.items():
-        # print(f"--------------{product}")
         product = Product.objects.get(id=product)
-        print(product)
         for variant in variants:
             if variant['sizeId'] == "None":
                 product_variant = ProductVariant.objects.filter(product=product, color_id = variant['colorId'])[0]

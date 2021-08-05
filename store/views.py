@@ -1,7 +1,7 @@
+import random
 import json
-from django.http import request 
 import stripe
-
+from django.http import request 
 from django.contrib import messages
 from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.conf import settings
@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.views.generic import TemplateView
 from .models import Order, OrderProduct, Product, ProductVariant, Review, Cart
 from .forms import ReviewForm
-from .utils import cart_items
+from .utils import cart_items, cookie_cart
 
 # Create your views here.
 def home(request):
@@ -107,55 +107,24 @@ def review_product(request, id):
 
 
 def cart(request):
+    sub_total = 0
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).order_by('date_added')
         cart_items_total = cart_items(request)
-        sub_total = 0
-        tax = 0
         for order in cart:
             sub_total += order.amount
-        context = {
-            'cart': cart,
-            'sub_total': sub_total,
-            'total': sub_total + tax,
-            'cart_items_total': cart_items_total
-        }
     else:
-        try: 
-            cookie_cart = json.loads(request.COOKIES['cart'])
-        except:
-            cookie_cart = {}
-        cart_items_total = 0
-        sub_total = 0
-        cart = []
-        print(f"cookie_cart: {cookie_cart}")
-        for product, variants in cookie_cart.items():
-            print(f"--------------{product}")
-            product = Product.objects.get(id=product)
-            print(product)
-            for variant in variants:
-                if variant['sizeId'] == "None":
-                    product_variant = ProductVariant.objects.filter(product=product, color_id = variant['colorId'])[0]
-                else:
-                    product_variant = ProductVariant.objects.filter(product=product, size_id = variant['sizeId'], color_id = variant['colorId'])[0]
-                cart_items_total += variant['quantity']
-                if product_variant:
-                    amount = variant['quantity'] * product_variant.price
-                else:
-                    amount = variant['quantity'] * product.price
-                sub_total += amount
-                cart.append({
-                    'product': product,
-                    'product_variant': product_variant,
-                    'quantity': variant['quantity'],
-                    'amount': amount
-                })
-        context = {
-            'cart': cart,
-            'sub_total': sub_total,
-            'total': sub_total,
-            'cart_items_total': cart_items_total
-        }
+        data = cookie_cart(request)
+        cart = data['cart']
+        sub_total = data['sub_total']
+        cart_items_total = data['cart_items_total']
+    context = {
+        'cart': cart,
+        'sub_total': sub_total,
+        'total': sub_total,
+        'cart_items_total': cart_items_total
+    }
+    print(f"cart {cart}")
     return render(request, 'store/cart.html', context)
         
 
@@ -227,17 +196,40 @@ def create_checkout_session(request):
     if request.method == 'POST':
         prev_url = request.META.get('HTTP_REFERER')
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        # Creating line items to display the items from the current user's cart
-        cart = Cart.objects.filter(user=request.user)
+        
+        if request.user.is_authenticated:
+            user = request.user
+            cart = Cart.objects.filter(user=user)
+        else:
+            guest_cart = cookie_cart(request)['cart']
+            username = str(random.randint(1, 9999))
+            while True:
+                try:
+                    user = User.objects.create_user(username)
+                    break
+                except:
+                    username = str(random.randint(1, 9999))
+
+            for item in guest_cart:
+                cart = Cart(user=user, product=item['product'], product_variant=item['product_variant'], quantity=item['quantity'])
+                cart.save()
+
+            cart = Cart.objects.filter(user=user)
+
+        # Creating line items to display the items from the current user's cart   
         line_items = []
         for item in cart:
+            print(item)
             if item.product_variant:
                 name = f"{item.product} {item.product_variant.color} {item.product_variant.size}"
-                images = [item.product_variant.image()] 
+                # images = [item.product_variant.image()] 
+                # print(f'if :   {images}')
             else:
                 name = item.product.name
-                images = [item.product.image.url]
-        
+                # images = [item.product.image.url]
+                # print(f'else :   {images}')
+
+
             line_items_dic = {}
             line_items_dic['price_data'] = {
                 'currency': 'usd',
@@ -245,7 +237,7 @@ def create_checkout_session(request):
                 # 'tax_behavior': "exclusive",
                 'product_data': {
                     'name': name,
-                    'images': images,
+                    # 'images': images,
                 }
             }
             line_items_dic['quantity'] = item.quantity
@@ -258,7 +250,7 @@ def create_checkout_session(request):
             },
             line_items = line_items,
             metadata = {
-                'user_id': request.user.id,
+                'user_id': user.id,
             },
             # automatic_tax = {
             #     'enabled': True,
