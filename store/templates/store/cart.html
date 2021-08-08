@@ -51,12 +51,11 @@
                                  {% endif %}
                              </div>
                         </td>
-                        <!-- <td><input data-product="{{ order.product.id }}" data-size="{{ order.product_variant.size.id }}" data-color="{{ order.product_variant.color.id }}" class="cart-qty" type="number" class="form-control small-input" value="{{ order.quantity }}" min="1" max="{{ order.product_variant.inventory_quantity}}"></td> -->
                         <td>
-                            <div class="btn-group plus-minus" data-product="{{ order.product.id }}" data-size="{{ order.product_variant.size.id }}" data-color="{{ order.product_variant.color.id }} role="group">
-                                <button type="button" class="btn btn-outline-danger subtract"><i class="fas fa-minus"></i></button>
+                            <div class="btn-group plus-minus" role="group">
+                                <button type="button" class="btn btn-outline-danger fas fa-minus plus-minus-button" data-product="{{ order.product.id }}" data-size="{{ order.product_variant.size.id }}" data-color="{{ order.product_variant.color.id }}"></button>
                                 <button type="button" class="btn btn-outline-danger item-qty">{{ order.quantity }}</button>
-                                <button type="button" class="btn btn-outline-danger add"><i class="fas fa-plus"></i></button>
+                                <button type="button" class="btn btn-outline-danger fas fa-plus plus-minus-button" data-product="{{ order.product.id }}" data-size="{{ order.product_variant.size.id }}" data-color="{{ order.product_variant.color.id }}"></button>
                             </div>
                         </td>
                         <td>${{ order.amount }}</td>

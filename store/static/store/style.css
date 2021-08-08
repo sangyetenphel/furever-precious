@@ -310,6 +310,7 @@ td img {
 .plus-minus button {
     border: 1px solid #f5c6c6;
     color: black;
+    font-size: 12px;
 }
 
 .plus-minus button:hover{
@@ -326,10 +327,6 @@ td img {
 .plus-minus button:hover:nth-child(2) {
     background-color: unset !important;
     color: unset !important;
-}
-
-.plus-minus i {
-    font-size: 12px;
 }
 
 .total-price {

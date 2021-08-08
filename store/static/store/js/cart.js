@@ -30,71 +30,29 @@ function checkCookie() {
 let cart = checkCookie();
 console.log("Cart:", cart)
 
- 
-// Add to cart for authorized and unauthorized users
-document.querySelector('#add_cart_form').addEventListener('submit', (event) => {
-    const productId = document.querySelector('#productId').value
-    const sizeId = event.target.elements.size.value;
-    const colorId = event.target.elements.color.value;
-    const quantity = document.querySelector('#inventory-qty').value 
-
-    if (user === 'AnonymousUser') {
-        // Handle cart for unauthenticated user
-        updateUserCookie(quantity, productId, sizeId, colorId)
-    }
-    else {
-        updateUserOrder(quantity, productId, sizeId, colorId)
-    }
-    event.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener for when a Product is added to cart
+    document.querySelector('#add_cart_form').addEventListener('submit', (event) => {
+        console.log('add cart form clicked')
+        const productId = document.querySelector('#productId').value
+        const sizeId = event.target.elements.size.value;
+        const colorId = event.target.elements.color.value;
+        const quantity = document.querySelector('#inventory-qty').value 
+    
+        // Handle cart if user is unauthenticated or not
+        if (user === 'AnonymousUser') {
+            updateUserCookie(quantity, productId, sizeId, colorId)
+        }
+        else {
+            updateUserOrder(quantity, productId, sizeId, colorId)
+        }
+        event.preventDefault();
+    });
 })
 
 
-
-
-// Update the item quantites in cart
-// document.querySelectorAll('.cart-qty').forEach(qty => {
-//     qty.onchange = () => {
-//         const quantity = qty.value
-//         const productId = qty.dataset.product
-//         const sizeId = qty.dataset.size
-//         const colorId = qty.dataset.color
-
-//         if (user == 'AnonymousUser') {
-//             updateUserCookie(quantity, productId, sizeId, colorId)
-//         }
-//         else {
-//             updateUserOrder(quantity, productId, sizeId, colorId)
-//         }
-//     }
-// })
-
-
-// Update item quantities
-var plusMinus = document.querySelector('.plus-minus')
-plusMinus.addEventListener('click', function(e) {
-    const productId = e.currentTarget.dataset.productId
-    const sizeId = e.currentTarget.dataset.sizeId
-    const colorId = e.currentTarget.dataset.colorId
-    var action = ''
-
-    if (e.target.classList.contains('add') || e.target.classList.contains('fa-plus')) {
-        action = 'add';
-    } else if (e.target.classList.contains('subtract') || e.target.classList.contains('fa-minus')) {
-        action = 'subtract';
-    }
-
-    if (user == 'AnonymousUser') {
-        updateUserCookie(quantity, productId, sizeId, colorId, action)
-    }
-    else {
-        updateUserOrder(quantity, productId, sizeId, colorId, action)
-    }
-})
-
-
-
-// Add/Update cart for unauthorized users
-function updateUserCookie(quantity=1, productId, sizeId, colorId, action) {
+// Update the item quantites in cart for unauthorized users
+function updateUserCookie(quantity=1, productId, sizeId, colorId, action='add') {
     quantity = parseInt(quantity)
     if (cart[productId] == undefined) {
         cart[productId] = [{'sizeId': sizeId, 'colorId': colorId, 'quantity': quantity}]
@@ -105,23 +63,35 @@ function updateUserCookie(quantity=1, productId, sizeId, colorId, action) {
             if (cart[productId][i]['sizeId'] == sizeId && cart[productId][i]['colorId'] == colorId) {
                 if (action == 'subtract') {
                     cart[productId][i]['quantity'] -= quantity
+                    // delete the item if quantity is 0 
+                    if (cart[productId][i]['quantity'] == 0) {
+                        delete cart[productId][i];
+                        // Filtering out all null elements in the array since delete will replace item array with null
+                        var filteredCart = cart[productId].filter((item) => {
+                            return item != null
+                        })
+                        cart[productId] = filteredCart
+                    }
                 } else {
                     cart[productId][i]['quantity'] += quantity
                 }
                 found = true
             }
         }
+        // The product is in the cart but not the product variant, so append the new dic to the list 
         if (found == false) {
             cart[productId].push({'sizeId': sizeId, 'colorId': colorId, 'quantity': quantity})
         }
     }
     setCookie("cart", cart)
+    location.reload();
     console.log('Cart:', cart)
 }
 
 
 // Add/Update cart for authorized users
-function updateUserOrder(quantity=1, productId, sizeId, colorId) {
+function updateUserOrder(quantity=1, productId, sizeId, colorId, action='add') {
+    // console.log('Update user items')
     const url = '/add_cart'
 
     fetch(url, {
@@ -134,7 +104,8 @@ function updateUserOrder(quantity=1, productId, sizeId, colorId) {
             'quantity': quantity,
             'productId': productId,
             'sizeId': sizeId,
-            'colorId': colorId
+            'colorId': colorId,
+            'action': action
         })
     })
 
@@ -147,3 +118,29 @@ function updateUserOrder(quantity=1, productId, sizeId, colorId) {
         console.error('Error:', error);
     })
 }
+
+
+// When user updates item quantites through the cart
+document.querySelectorAll('.plus-minus-button').forEach(button => {
+    button.onclick = () => {
+        const productId = button.dataset.product
+        const sizeId = button.dataset.size
+        const colorId = button.dataset.color
+        let action = ''
+
+        if (button.classList.contains('fa-plus')) {
+            action = 'add';
+        } else if (button.classList.contains('fa-minus')) {
+            action = 'subtract';
+        }
+
+        if (user == 'AnonymousUser') {
+            updateUserCookie(quantity=1, productId, sizeId, colorId, action)
+        }
+        else {
+            updateUserOrder(quantity=1, productId, sizeId, colorId, action)
+        }
+    }
+});
+
+    

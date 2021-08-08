@@ -23,13 +23,14 @@ def cookie_cart(request):
         cookie_cart = json.loads(request.COOKIES['cart'])
     except:
         cookie_cart = {}
+    print(f"-----Cookie cart: {cookie_cart}")
     cart_items_total = 0
     sub_total = 0
     cart = []
     for product, variants in cookie_cart.items():
         product = Product.objects.get(id=product)
         for variant in variants:
-            if variant['sizeId'] == "None":
+            if variant['sizeId'] == "None" or variant['sizeId'] == '':
                 product_variant = ProductVariant.objects.filter(product=product, color_id = variant['colorId'])[0]
             else:
                 product_variant = ProductVariant.objects.filter(product=product, size_id = variant['sizeId'], color_id = variant['colorId'])[0]
@@ -51,4 +52,5 @@ def cookie_cart(request):
         'total': sub_total,
         'cart_items_total': cart_items_total
     }
+    print(f"------data: {data}")
     return data
