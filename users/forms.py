@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.forms.widgets import TextInput
 from .models import Profile
 
 
@@ -24,20 +25,16 @@ class UserRegistrationForm(UserCreationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
+    username = forms.CharField(widget=TextInput(attrs={'class': 'mb-3'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'mb-3'}))
 
     class Meta:
         model = User
         fields = ['username', 'email']
-        widgets = {
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control mb-3'})
-        }
 
 
 class ProfileUpdateForm(forms.ModelForm):
+    image = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control mb-3'}))
     class Meta:
         model = Profile
         fields = ['image']
-        widgets = {
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control mb-3'})
-        }

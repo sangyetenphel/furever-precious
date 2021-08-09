@@ -23,7 +23,6 @@ def cookie_cart(request):
         cookie_cart = json.loads(request.COOKIES['cart'])
     except:
         cookie_cart = {}
-    print(f"-----Cookie cart: {cookie_cart}")
     cart_items_total = 0
     sub_total = 0
     cart = []
@@ -52,5 +51,4 @@ def cookie_cart(request):
         'total': sub_total,
         'cart_items_total': cart_items_total
     }
-    print(f"------data: {data}")
     return data

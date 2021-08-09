@@ -28,26 +28,29 @@ function checkCookie() {
 }
 
 let cart = checkCookie();
-console.log("Cart:", cart)
+const user = document.querySelector("#user").value;
 
 document.addEventListener('DOMContentLoaded', function() {
+    const addCartForm =  document.querySelector('#add_cart_form');
     // Event listener for when a Product is added to cart
-    document.querySelector('#add_cart_form').addEventListener('submit', (event) => {
-        console.log('add cart form clicked')
-        const productId = document.querySelector('#productId').value
-        const sizeId = event.target.elements.size.value;
-        const colorId = event.target.elements.color.value;
-        const quantity = document.querySelector('#inventory-qty').value 
-    
-        // Handle cart if user is unauthenticated or not
-        if (user === 'AnonymousUser') {
-            updateUserCookie(quantity, productId, sizeId, colorId)
-        }
-        else {
-            updateUserOrder(quantity, productId, sizeId, colorId)
-        }
-        event.preventDefault();
-    });
+    if (addCartForm) {
+        addCartForm.addEventListener('submit', (event) => {
+            console.log('add cart form clicked')
+            const productId = document.querySelector('#productId').value
+            const sizeId = event.target.elements.size.value;
+            const colorId = event.target.elements.color.value;
+            const quantity = document.querySelector('#inventory-qty').value 
+        
+            // Handle cart if user is unauthenticated or not
+            if (user === 'AnonymousUser') {
+                updateUserCookie(quantity, productId, sizeId, colorId)
+            }
+            else {
+                updateUserOrder(quantity, productId, sizeId, colorId)
+            }
+            event.preventDefault();
+        });
+    }
 })
 
 
@@ -85,13 +88,11 @@ function updateUserCookie(quantity=1, productId, sizeId, colorId, action='add') 
     }
     setCookie("cart", cart)
     location.reload();
-    console.log('Cart:', cart)
 }
 
 
 // Add/Update cart for authorized users
 function updateUserOrder(quantity=1, productId, sizeId, colorId, action='add') {
-    // console.log('Update user items')
     const url = '/add_cart'
 
     fetch(url, {
@@ -133,6 +134,8 @@ document.querySelectorAll('.plus-minus-button').forEach(button => {
         } else if (button.classList.contains('fa-minus')) {
             action = 'subtract';
         }
+
+        console.log("user" + user);
 
         if (user == 'AnonymousUser') {
             updateUserCookie(quantity=1, productId, sizeId, colorId, action)

@@ -52,7 +52,7 @@
                                             <p>{{ review.product.name }}</p>
                                             <small>Price: {{ review.product.price }}</small>
                                             <br>
-                                            <a href="{% url 'user-review-delete' review.id %}" onclick="return confirm('Delete review for {{ review.product.name }}?');">Remove</a>
+                                            <a href="{% url 'user-review-delete' review.id %}" class="confirm-delete" data-confirm="Are you sure to remove your review?">Remove</a>
                                         </div>
                                     </div>     
                                 </td>

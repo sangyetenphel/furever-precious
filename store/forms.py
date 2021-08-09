@@ -1,16 +1,10 @@
-from django.forms import ModelForm, fields
-from .models import Review, Cart, Order
+from django.forms import ModelForm
+from .models import Review, Order
 
 class ReviewForm(ModelForm):
     class Meta:
         model = Review
         fields = ['subject', 'review', 'rating']
-
-
-# class CartForm(ModelForm):
-#     class Meta:
-#         model = Cart    
-#         fields = ['product_variant', 'quantity']
 
 
 class OrderForm(ModelForm):

@@ -91,7 +91,7 @@
                                 <p>No reviews yet.</p>
                             {% endif %}
                             <p class="lead m-1">{{ review.review }}</p>
-                            <p class="fw-lighter fst-italic">{{ review.reviewer|title }}, {{ review.date_added }}</p>
+                            <p class="fw-lighter fst-italic">{{ review.user|title }}, {{ review.date_added }}</p>
                         </div>
                     {% endfor %}
                 </div>

@@ -309,8 +309,9 @@ td img {
 
 .plus-minus button {
     border: 1px solid #f5c6c6;
-    color: black;
+    color: rgb(61, 60, 60);
     font-size: 12px;
+    /* font-weight: 200; */
 }
 
 .plus-minus button:hover{

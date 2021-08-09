@@ -89,21 +89,21 @@ def ajax_sizes(request):
 def review_product(request, id):
     product = Product.objects.get(id=id)
     if request.method == 'POST':
+        # Create a form instance with POST data
         form = ReviewForm(request.POST)
-        if form.is_valid():
-            new_review = Review()
-            new_review.subject = form.cleaned_data['subject']
-            new_review.review = form.cleaned_data['review']
-            new_review.rating = form.cleaned_data['rating']
-            new_review.product = product
-            new_review.reviewer = request.user
-            new_review.save()
-            messages.success(request, "Thank you for reviewing our product.")
-            # Return back to the prev page
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
-        else:
-            messages.error(request, "Error reviewing product. Try again!")
-            return redirect('product', id=product.id)
+
+        # Creating but don't save the new review instance
+        new_review = form.save(commit=False)
+
+        # Modify the new_review to add product and user
+        new_review.product = product
+        new_review.user = request.user
+
+        # Save the new instance
+        new_review.save()
+        messages.success(request, "Thank you for reviewing our product.")
+        # Return back to the prev page
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
 
 
 def cart(request):
@@ -124,25 +124,21 @@ def cart(request):
         'total': sub_total,
         'cart_items_total': cart_items_total
     }
-    # print(f"cart {cart}")
     return render(request, 'store/cart.html', context)
         
 
 def add_cart(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        # print(f" data {data}")
         product_id = data['productId']
         size_id = data['sizeId']
         color_id = data['colorId']
         quantity = int(data['quantity'])
         action = data['action']
-        # print(f"SizeId {size_id} {type(size_id)}")
         if size_id == '':
             size_id = None
         product_variant = ProductVariant.objects.filter(product_id=product_id, size_id=size_id, color_id=color_id)[0]
         cart, created = Cart.objects.get_or_create(user=request.user, product_id=product_id, product_variant = product_variant)
-        print(cart)
         if created:
             cart.quantity = quantity
         else:
