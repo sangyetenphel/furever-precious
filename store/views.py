@@ -1,19 +1,17 @@
 import random
 import json
 import stripe
-from django.http import request 
 from django.contrib import messages
 from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt 
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
-from django.views.generic import TemplateView
 from .models import Order, OrderProduct, Product, ProductVariant, Review, Cart
 from .forms import ReviewForm
 from .utils import cart_items, cookie_cart
+
 
 # Create your views here.
 def home(request):
@@ -33,6 +31,7 @@ def about(request):
         'cart_items_total': cart_items_total
     }
     return render(request, 'store/about.html', context)
+
 
 def products(request):
     cart_items_total = cart_items(request)
@@ -156,6 +155,12 @@ def delete_cart(request, id):
     Cart.objects.filter(id=id).delete()
     messages.success(request, "The item has been removed from your cart.")
     return redirect('cart')
+
+
+def return_policy(request):
+    cart_items_total = cart_items(request)
+    context = {'cart_items_total': cart_items_total}
+    return render(request, 'store/return_policy.html', context)
 
 
 @csrf_exempt

@@ -3,7 +3,7 @@
     <label>
         <input type="radio" class="radio-color" value="{{ item.color.id }}" name="color" required oninvalid="this.setCustomValidity('Select one of the color images')"
         oninput="this.setCustomValidity('')">
-        <img src="{{ item.image }}" class="small-img img-thumbnail" alt="">       
+        <img src="{{ item.image }}" class="small-img img-thumbnail" alt="{{item}}">       
         <input type="hidden" name="" id="item-price" value="{{ item.price }}">
         <input type="hidden" id="maxQty" value="{{ item.inventory_quantity }}">
     </label>

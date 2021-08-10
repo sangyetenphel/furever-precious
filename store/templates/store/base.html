@@ -25,7 +25,7 @@
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-5">
         <div class="container">
           <a class="navbar-brand navbar-brand-centered" href="{% url 'store-home' %}">
-            <img src="{% static 'store/images/fureverprecious-logo.png' %}" alt="">
+            <img src="{% static 'store/images/fureverprecious-logo.png' %}" alt="Furever precious logo">
           </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -117,7 +117,7 @@
             </div>
         </div>
         <div class="text-center pb-3 mt-4 mt-sm-0">
-          <p>Copyright &copy; 2021 Furever Precious | <a href="" class="link">Return Policy</a></p>
+          <p>Copyright &copy; 2021 Furever Precious | <a href="{% url 'return_policy' %}" class="link">Return Policy</a></p>
         </div>
     </footer>
     

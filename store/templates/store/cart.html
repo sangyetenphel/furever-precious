@@ -19,7 +19,7 @@
                             <div class="cart-info row">
                                 {% if order.product_variant %}
                                      <div class="col col-md-3">
-                                         <img src="{{ order.product_variant.image }}" alt="">
+                                         <img src="{{ order.product_variant.image }}" alt="{{ order.product_variant }}">
                                      </div>
                                      <div class="col">
                                          <p class="mb-0">{{ order.product.name }}</p>
@@ -38,7 +38,7 @@
                                      </div>        
                                  {% else %}
                                      <div class="col-3">
-                                         <img src="{{ order.product.image.url }}" alt="">
+                                         <img src="{{ order.product.image.url }}" alt="{{ order.product }}">
                                      </div>
                                      <div class="col">
                                          <p>{{ order.product.name }}</p>
@@ -90,7 +90,7 @@
         </div>
     {% else %}
         <div class="p-5 text-center no-cart">
-            <img src="{% static 'store/images/empty-cart-dog.jpg' %}" alt="">
+            <img src="{% static 'store/images/empty-cart-dog.jpg' %}" alt="Empty cart image of a frenchie">
             <h2>CART</h2>
             <p>There are no items in your cart.</p>
             <a href="{% url 'products' %}" class="link">Continue shopping</a>

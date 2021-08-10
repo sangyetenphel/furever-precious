@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <div class="row px-3 px-md-0 profile">
         <div class="col-12 col-md-2">
-            <img class="img-fluid" src="{{ user.profile.image.url }}" alt="">
+            <img class="img-fluid" src="{{ user.profile.image.url }}" alt="Image of {{ user.profile }}">
         </div>
         <div class="col">
             <h3>{{ user.username }}</h3>
@@ -47,7 +47,7 @@
                             <tr>
                                 <td>
                                     <div class="cart-info">
-                                        <img src="{{ review.product.image.url }}" alt="">
+                                        <img src="{{ review.product.image.url }}" alt="{{ review.product }}">
                                         <div>
                                             <p>{{ review.product.name }}</p>
                                             <small>Price: {{ review.product.price }}</small>
@@ -108,7 +108,8 @@
                                         <td>
                                             <div class="cart-info row">   
                                                 <div class="col col-md-3">
-                                                    <img src="{{ order_product.image }}" alt="">
+                                                    <img src="{{ order_product.image }}" alt="{{ order_product }}">
+                                                    dasd {{ order_product }}
                                                 </div>
                                                 <div class="col">
                                                     <p class="mb-0">{{ order_product }}</p>

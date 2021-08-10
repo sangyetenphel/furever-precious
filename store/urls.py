@@ -1,7 +1,6 @@
 from django.urls import path
 from django.urls import path
 from . import views
-# from .views import ReviewDetailView, ReviewCreateView, ReviewUpdateView, ReviewDeleteView
 
 urlpatterns = [
     path('', views.home, name='store-home'),
@@ -12,6 +11,7 @@ urlpatterns = [
     path('cart', views.cart, name='cart'),
     path('add_cart', views.add_cart, name='add_cart'),
     path('delete_cart/<int:id>', views.delete_cart, name='delete_cart'),
+    path('return_policy', views.return_policy, name='return_policy'),
     path('ajax_sizes', views.ajax_sizes, name='ajax_sizes'),
     path('stripe_config/', views.stripe_config, name='stripe_config'),
     path('create-checkout-session/', views.create_checkout_session, name='create-checkout-session'),

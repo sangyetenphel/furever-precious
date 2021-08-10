@@ -15,7 +15,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-const csrftoken = getCookie('csrftoken');
+var csrftoken = getCookie('csrftoken');
 
 document.addEventListener('DOMContentLoaded', function() {
     // Changing the main product image when smaller image thumbnail is clicked

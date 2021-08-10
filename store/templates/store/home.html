@@ -11,7 +11,7 @@
                 <a href="{% url 'about' %}" class="btn btn-dark">Learn More</a>
             </div>
             <div class="col">
-                <img src="{% static 'store/images/showcase.png' %}" class="img-fluid" alt="">
+                <img src="{% static 'store/images/showcase.png' %}" class="img-fluid" alt="Showcase image of a frenchie">
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="row">
             {% for product in featured_products %}
                 <a href="{% url 'product' product.id %}" class="col-md-6 col-lg-3 products">
-                    <img src="{{ product.image.url }}" class="img-fluid" alt="">
+                    <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product }}">
                     <h2>{{ product.name }} <span class="price">${{ product.price }}</span></h2>
                     {% if product.review_average %}
                     <div class="rating">
@@ -44,7 +44,7 @@
     <div class="container-fluid">
         <div class="row bg-pink">
             <div class="col-sm">
-                <img src="{% static 'store/images/hammock.png' %}" class="img-fluid p-5" alt="">
+                <img src="{% static 'store/images/hammock.png' %}" class="img-fluid p-5" alt="Image of a cat hammock for preorder">
             </div>
             <div class="col pt-5 p-5">
                 <p>Exclusively Available On Pre-Order</p>
@@ -69,7 +69,7 @@
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                     </div>
-                    <img src="{% static 'store/images/user-1.png' %}" alt="">
+                    <img src="{% static 'store/images/user-1.png' %}" alt="Image of a reviewer">
                     <h3>Cheyenne Parker</h3>
                 </div>
                 <div class="col-md-3 m-5 my-sm-0 testimonial">
@@ -82,7 +82,7 @@
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                     </div>
-                    <img src="{% static 'store/images/user-2.png' %}" alt="">
+                    <img src="{% static 'store/images/user-2.png' %}" alt="Image of a reviewer">
                     <h3>Sean Deans</h3>
                 </div>
                 <div class="col-md-3 testimonial">
@@ -95,33 +95,10 @@
                         <i class="fas fa-star" aria-hidden="true"></i>
                         <i class="fas fa-star" aria-hidden="true"></i>
                     </div>
-                    <img src="{% static 'store/images/user-3.png' %}" alt="">
+                    <img src="{% static 'store/images/user-3.png' %}" alt="Image of a reviewer">
                     <h3>Sabrina Lynn</h3>
                 </div>
             </div>
         </div>
-
-    <!-- Brands -->
-    <!-- <div class="brands">
-        <div class="small-container">
-            <div class="row">
-                <div class="col">
-                    <img src="{% static 'store/images/logo-godrej.png' %}" alt="">
-                </div>
-                <div class="col">
-                    <img src="{% static 'store/images/logo-oppo.png' %}" alt="">
-                </div>
-                <div class="col">
-                    <img src="{% static 'store/images/logo-coca-cola.png' %}" alt="">
-                </div>
-                <div class="col">
-                    <img src="{% static 'store/images/logo-paypal.png' %}" alt="">
-                </div>
-                <div class="col">
-                    <img src="{% static 'store/images/logo-philips.png' %}" alt="">
-                </div>
-            </div>
-        </div>
-    </div> -->
 {% endblock content %}
 

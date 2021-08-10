@@ -62,6 +62,9 @@ class ProductImage(models.Model):
     class Meta:
         verbose_name_plural = "Product images"
 
+    def __str__(self):
+        return self.product.name
+
 
 class Color(models.Model):
     name = models.CharField(max_length=10)
