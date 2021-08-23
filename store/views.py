@@ -1,5 +1,6 @@
 import random
 import json
+from django.core import paginator
 import stripe
 from django.contrib import messages
 from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -8,10 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+from django.core.paginator import Paginator
 from .models import Order, OrderProduct, Product, ProductVariant, Review, Cart
 from .forms import ReviewForm
 from .utils import cart_items, cookie_cart
-
 
 # Create your views here.
 def home(request):
@@ -46,12 +47,19 @@ def product(request, id):
     cart_items_total = cart_items(request)
     product = Product.objects.get(pk=id)
     side_images = product.productimage_set.all()[:4]
+    reviews = Review.objects.filter(product=product).order_by('-date_added')
+    paginator = Paginator(reviews, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'product': product,
-        'reviews': Review.objects.filter(product=product).order_by('-date_added')[:2],
+        # 'reviews': reviews,
         'side_images': side_images,
-        'cart_items_total': cart_items_total
+        'cart_items_total': cart_items_total,
+        'page_obj': page_obj
     }
+
     if request.method == 'POST':
        pass
     else:
@@ -182,33 +190,29 @@ def create_checkout_session(request):
             cart = Cart.objects.filter(user=user)
         else:
             guest_cart = cookie_cart(request)['cart']
-            username = str(random.randint(1, 9999))
+            username = "GUEST" + str(random.randint(1, 9999))
             while True:
                 try:
                     user = User.objects.create_user(username)
                     break
                 except:
-                    username = str(random.randint(1, 9999))
+                    username = "GUEST" + str(random.randint(1, 9999))
 
             for item in guest_cart:
                 cart = Cart(user=user, product=item['product'], product_variant=item['product_variant'], quantity=item['quantity'])
                 cart.save()
 
             cart = Cart.objects.filter(user=user)
-
+            
         # Creating line items to display the items from the current user's cart   
         line_items = []
         for item in cart:
-            print(item)
             if item.product_variant:
                 name = f"{item.product} {item.product_variant.color} {item.product_variant.size}"
-                # images = [item.product_variant.image()] 
-                # print(f'if :   {images}')
+                images = [item.product_variant.image()] 
             else:
                 name = item.product.name
-                # images = [item.product.image.url]
-                # print(f'else :   {images}')
-
+                images = [item.product.image.url]
 
             line_items_dic = {}
             line_items_dic['price_data'] = {
@@ -217,13 +221,14 @@ def create_checkout_session(request):
                 # 'tax_behavior': "exclusive",
                 'product_data': {
                     'name': name,
-                    # 'images': images,
+                    'images': images,
                 }
             }
             line_items_dic['quantity'] = item.quantity
             line_items.append(line_items_dic)
 
         checkout_session = stripe.checkout.Session.create(
+            customer_email = 'sangyetenphel@gmail.com',
             payment_method_types = ['card'],
             shipping_address_collection = {
                 'allowed_countries': ['US', 'CA'],
@@ -291,7 +296,7 @@ def stripe_webhook(request):
 
     # Passed signature verification
     return HttpResponse(status=200)
-
+ 
 
 def create_order(session):
     user_id = session['metadata']['user_id']

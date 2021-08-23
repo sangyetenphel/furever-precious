@@ -1,7 +1,6 @@
 {% extends "store/base.html" %}
 {% load static %}
 {% block content %}
-
     <!-- Single Product Detail -->
     <div class="container mt-5">
         <div class="row">
@@ -19,8 +18,7 @@
                 </div>
             </div>
 
-
-            <div class="col-12 col-md-7">
+            <div class="col-md-5">
                 <h1>{{ product.name }}</h1>
                 <h4>$<span id="product-price">{{ product.price }}</span></h4>
                 <form id="add_cart_form" class="row py-4">
@@ -52,32 +50,41 @@
                             </div>
                         </div>
                     {% endif %}
+                    <h5 class="pt-4 pb-2">About this item</h5>
+                    {{ product.description|safe }}
+            </div>
 
-                    <div class="col-lg-2">
+            <div class="col-12 col-md-2 product-cart">
+                    To buy, select <b>Size</b>
+                    <p class="fs-6 fw-light">Choose from options to the left</p>
+                    <div class="col-lg-2 input-group">
                         <input id="inventory-qty" type="number" class="form-control" name="quantity" value="1" min="1" max="">    
                     </div>
-                    <div class="pt-3 d-grid gap-2 d-lg-block">
+                    <div class="pt-3 d-grid gap-2">
                         <button type="submit" class="btn btn-dark cart-qty">Add To Cart</button>
                     </div>
                 </form>
             </div>
         </div>
-
-        <div class="container description">
-            <h3>Product Details <i class="fa fa-indent"></i></h3>
-            <br>
-            <p>{{ product.description|safe }}</p>
-        </div>
     </div>
 
 
     <!-- Review -->
+    <hr>
     <div class="container my-5">
         <div class="row">
-            {% if reviews %}
+            <div class="col-12 text-center pb-5">
+                <h3>Ratings and Reviews</h3>
+                <p>
+                    {% for star in product.review_average_stars %}
+                        <i class="{{ star }}"></i>
+                    {% endfor %}
+                    {{ product.review_average }} | {{ product.review_count }} reviews
+                </p>
+            </div>
+            {% if page_obj %}
                 <div class="col-md">
-                    <h4>Total Reviews: {{ product.review_count }}</h4>
-                    {% for review in reviews %}
+                    {% for review in page_obj %}
                         <div class="mb-5">
                             <p class="fs-3 m-0">{{ review.subject }}</p> 
                             
@@ -94,7 +101,17 @@
                             <p class="fw-lighter fst-italic">{{ review.user|title }} - {{ review.date_added|date:"F j, Y" }}</p>
                         </div>
                     {% endfor %}
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}"><i class="fas fa-arrow-left"></i> Previous Page</a>
+                        {% endif %}
+                
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}">Next Page <i class="fas fa-arrow-right"></i></a>
+                        {% endif %}
+                    </div>
                 </div>
+
             {% else %}
                 <div class="col-md text-center p-5">
                     <h5>No reviews yet for this product.</h5>

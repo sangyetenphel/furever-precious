@@ -89,8 +89,8 @@
             </div>
         </div>
     {% else %}
-        <div class="p-5 text-center no-cart">
-            <img src="{% static 'store/images/empty-cart-dog.jpg' %}" alt="Empty cart image of a frenchie">
+        <div class="container p-5 text-center no-cart">
+            <img class="img-fluid   " src="{% static 'store/images/empty-cart.jpg' %}" alt="Empty cart image">
             <h2>CART</h2>
             <p>There are no items in your cart.</p>
             <a href="{% url 'products' %}" class="link">Continue shopping</a>

@@ -1,5 +1,5 @@
 function setCookie(cname, cvalue) {
-    document.cookie = cname + "=" + JSON.stringify(cvalue) + ";"  + ";path=/";
+    document.cookie = cname + "=" + JSON.stringify(cvalue) + ";path=/";
 }
 
 function getCookie(cname) {

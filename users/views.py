@@ -1,13 +1,14 @@
+from django import template
 from store.models import Order, Review
 from django.contrib.auth import authenticate, logout, update_session_auth_hash
-# from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, UserPasswordChangeForm
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, UserPasswordChangeForm, PasswordResetConfirmViewForm
 from store.utils import cart_items
 
 # Create your views here.
@@ -106,18 +107,16 @@ def change_password(request):
 
 class UserPasswordResetView(PasswordResetView):
     template_name = 'users/password_reset.html'
+    success_url = 'login'
+    extra_context = {'cart_items_total': 0}
+
     def form_valid(self, form):
         messages.success(self.request, f"Password reset information has been sent to the email provided.")
         return super().form_valid(form)
 
-    success_url = reverse_lazy('user-login')
-
 
 class UserPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'users/password_reset_confirm.html'
-
-    def form_valid(self, form):
-        messages.success(self.request, f"You can now login with your new password.")
-        return super().form_valid(form)
-
+    form_class = PasswordResetConfirmViewForm
+    extra_context = {'cart_items_total': 0}
     success_url = reverse_lazy('user-login')

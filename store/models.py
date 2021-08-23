@@ -1,3 +1,4 @@
+import math
 from django.db import models
 from django.db.models import Avg
 from django.db.models.deletion import SET_NULL
@@ -35,21 +36,24 @@ class Product(models.Model):
     image_tag.short_description = "Product Image"
 
     def review_average(self):
-        rating_dic = Review.objects.filter(product=self).aggregate(average_rating=Avg('rating'))
-        rating = rating_dic['average_rating']
-        if rating:
-            rating_list = []
-            for i in range(1, 6):
-                if rating > i:
-                    rating_list.append("fas fa-star")
-                elif rating >= (i - 0.5):
-                    rating_list.append('fas fa-star-half-alt')
-                else:
-                    rating_list.append('far fa-star')
+        return Review.objects.filter(product=self).aggregate(average_rating=Avg('rating'))['average_rating']
 
-            return rating_list
-        else:
+    def review_average_stars(self):
+        rating = Review.objects.filter(product=self).aggregate(average_rating=Avg('rating'))['average_rating']
+        if not rating:
             return None
+        stars = []
+        after_decimal, before_decimal = math.modf(rating)
+        for _ in range(int(before_decimal)):
+            stars.append('fas fa-star')
+
+        if after_decimal:
+            stars.append('fas fa-star-half-alt')
+
+        for _ in range(5 - math.ceil(rating)):
+            stars.append('far fa-star')
+
+        return stars
 
     def review_count(self):
         return Review.objects.filter(product=self).count()

@@ -1,4 +1,5 @@
 import json
+import math
 from .models import Cart, Product, ProductVariant
 
 def cart_items(request):
@@ -52,3 +53,4 @@ def cookie_cart(request):
         'cart_items_total': cart_items_total
     }
     return data
+

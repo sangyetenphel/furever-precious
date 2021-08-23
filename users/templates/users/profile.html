@@ -29,6 +29,69 @@
             <a href="#my-orders" class="list-group-item list-group-item-action">My orders</a>
             <a href="{% url 'change-password' %}" class="list-group-item list-group-item-action">Change Password</a>
         </div>
+
+        <div class="col-12" id="my-orders">
+            <h2 class="text-center mt-5">My Orders</h2>
+            {% if orders %}
+                {% for order in orders %}
+                    <div class="card mb-5">
+                        <div class="card-header bg-pink">
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <td>ORDER PLACED</td>
+                                        <td>SHIP TO</td>
+                                        <td>TOTAL</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ order.date_added }}</td>
+                                        <td>{{ order }}</td>
+                                        <td>{{ order.total }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                {% for order_product in order.orderproduct_set.all %}
+                                    <tr>
+                                        <td>
+                                            <div class="cart-info row">   
+                                                <div class="col col-md-3">
+                                                    <img src="{{ order_product.image }}" alt="{{ order_product }}">
+                                                </div>
+                                                <div class="col">
+                                                    <p class="mb-0">{{ order_product }}</p>
+                                                    <p class="fw-light mb-2">{{ order_product.product_variant.size }} | {{ order_product.product_variant.color }}</p>
+                                                    <small>Price: ${{ order_product.price }}</small>
+                                                </div>        
+                                            </div>
+                                        </td>
+                                        <td class="text-center">{{ order_product.quantity }}</td>
+                                        <td>${{ order_product.amount }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center mb-5">
+                    <p class="m-1">Your orders haven't been fullfilled yet.</p>
+                    <a href="{% url 'products' %}" class="link">Continue shopping</a>
+                </div>
+            {% endif %}
+        </div>
+
         <div class="table-responsive mt-5" id="my-reviews">
             <h2 class="text-center">My Reviews</h2>
             {% if reviews %}
@@ -71,68 +134,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="col" id="my-orders">
-            <h2 class="text-center mt-5">My Orders</h2>
-            {% if orders %}
-                {% for order in orders %}
-                    <div class="card mb-5">
-                        <div class="card-header bg-pink">
-                            <table class="table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <td>ORDER PLACED</td>
-                                        <td>SHIP TO</td>
-                                        <td>TOTAL</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{ order.date_added }}</td>
-                                        <td>{{ order }}</td>
-                                        <td>{{ order.total }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                </thead>
-                                {% for order_product in order.orderproduct_set.all %}
-                                    <tr>
-                                        <td>
-                                            <div class="cart-info row">   
-                                                <div class="col col-md-3">
-                                                    <img src="{{ order_product.image }}" alt="{{ order_product }}">
-                                                    dasd {{ order_product }}
-                                                </div>
-                                                <div class="col">
-                                                    <p class="mb-0">{{ order_product }}</p>
-                                                    <p class="fw-light mb-2">{{ order_product.product_variant.size }} | {{ order_product.product_variant.color }}</p>
-                                                    <small>Price: ${{ order_product.price }}</small>
-                                                </div>        
-                                            </div>
-                                        </td>
-                                        <td class="text-center">{{ order_product.quantity }}</td>
-                                        <td>${{ order_product.amount }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="text-center mb-5">
-                    <p class="m-1">Your orders haven't been fullfilled yet.</p>
-                    <a href="{% url 'products' %}" class="link">Continue shopping</a>
-                </div>
-            {% endif %}
-        </div>
+
     </div> 
 </div>
 

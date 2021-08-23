@@ -16,7 +16,7 @@
                     <h2>{{ product.name }} <span class="price">${{ product.price }}</span></h2>
                     {% if product.review_average %}
                         <div class="rating">
-                            {% for rating in product.review_average %}
+                            {% for rating in product.review_average_stars %}
                                 <i class="{{ rating }}" aria-hidden="true"></i>
                             {% endfor %}
                             {{ product.review_count }} Review{{ product.review_count|pluralize }}

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, SetPasswordForm
 from django.forms.widgets import TextInput
 from .models import Profile
 
@@ -38,3 +38,11 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['image']
+
+
+class PasswordResetConfirmViewForm(SetPasswordForm):
+    new_password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control mb-3'}), help_text='')
+    new_password2 = forms.CharField(label='Password Confirmation', widget=forms.PasswordInput(attrs={'class': 'form-control mb-3'}), help_text='')
+
+    class Meta:
+        fields = ['new_password1', 'new_password2']

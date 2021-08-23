@@ -227,6 +227,20 @@ footer h5 {
     outline: 2px solid #ffd6d6;
 }
 
+#select-size {
+    width: 200px;
+}
+
+.product-cart {
+    height: 250px;
+    padding: 30px 15px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 5px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px;
+}
+
+.pagination a {
+    text-decoration: none;
+}
+
 /* Review Form */
 .review-form .input-rating .stars {
     display: inline-block;
