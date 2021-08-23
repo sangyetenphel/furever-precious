@@ -1,6 +1,6 @@
+import os
 import random
 import json
-from django.core import paginator
 import stripe
 from django.contrib import messages
 from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -180,7 +180,12 @@ def stripe_config(request):
 
 @csrf_exempt
 def create_checkout_session(request):
-    DOMAIN_URL = 'http://localhost:8000/'
+    IS_LIVE = os.environ.get('IS_LIVE')
+    if IS_LIVE == 'True':
+        DOMAIN_URL = 'https://www.fureverprecious.com/webhook'
+    else:
+        DOMAIN_URL = 'http://localhost:8000/'
+    
     if request.method == 'POST':
         prev_url = request.META.get('HTTP_REFERER')
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -228,7 +233,6 @@ def create_checkout_session(request):
             line_items.append(line_items_dic)
 
         checkout_session = stripe.checkout.Session.create(
-            customer_email = 'sangyetenphel@gmail.com',
             payment_method_types = ['card'],
             shipping_address_collection = {
                 'allowed_countries': ['US', 'CA'],
