@@ -182,7 +182,7 @@ def stripe_config(request):
 def create_checkout_session(request):
     IS_LIVE = os.environ.get('IS_LIVE')
     if IS_LIVE == 'True':
-        DOMAIN_URL = 'https://www.fureverprecious.com/webhook'
+        DOMAIN_URL = 'https://www.fureverprecious.com/'
     else:
         DOMAIN_URL = 'http://localhost:8000/'
     
