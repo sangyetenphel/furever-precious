@@ -1,5 +1,7 @@
+from unittest import mock
+
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import Cart, Product
@@ -58,3 +60,20 @@ class CartPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Tax')
+
+
+class CheckoutTests(TestCase):
+
+    @override_settings(ALLOWED_HOSTS=['shop.example.com'])
+    def test_stripe_returns_shoppers_to_the_current_site(self):
+        user = User.objects.create_user('shopper', password='pass-12345')
+        product = Product.objects.create(name='Chew Toy', price=10, description='Squeaky', image='products/toy.jpg')
+        Cart.objects.create(user=user, product=product, quantity=1)
+        self.client.login(username='shopper', password='pass-12345')
+
+        with mock.patch('store.views.stripe.checkout.Session.create') as create:
+            create.return_value.url = 'https://checkout.stripe.com/test'
+            response = self.client.post(reverse('create-checkout-session'), HTTP_HOST='shop.example.com')
+
+        self.assertEqual(response.url, 'https://checkout.stripe.com/test')
+        self.assertEqual(create.call_args.kwargs['success_url'], 'http://shop.example.com/success')

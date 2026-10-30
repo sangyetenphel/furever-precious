@@ -99,6 +99,7 @@ Payments and emails need these environment variables:
 | `EMAIL_USER`, `EMAIL_PASS` | The account that sends password-reset emails |
 | `DJANGO_SECRET_KEY` | Your own secret key, for anything beyond local development |
 | `DJANGO_DEBUG` | Set to `False` to turn debug mode off |
+| `DJANGO_ALLOWED_HOSTS` | The site's domain(s), comma-separated, when deploying (default `localhost,127.0.0.1`) |
 
 The site runs without the Stripe and email settings, but checkout and password reset won't work.
 

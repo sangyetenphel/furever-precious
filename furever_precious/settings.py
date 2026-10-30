@@ -40,7 +40,8 @@ if not SECRET_KEY:
         raise ImproperlyConfigured('Set the DJANGO_SECRET_KEY environment variable.')
     SECRET_KEY = 'django-insecure-local-development-only'
 
-ALLOWED_HOSTS = ['www.fureverprecious.com', 'fureverprecious.com', 'furever-precious.herokuapp.com', '127.0.0.1', 'localhost']
+# The site's domain(s), comma-separated, e.g. "example.com,www.example.com"
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition

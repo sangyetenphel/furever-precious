@@ -1,4 +1,3 @@
-import os
 import random
 import json
 import stripe
@@ -185,11 +184,8 @@ def stripe_config(request):
 
 @csrf_exempt
 def create_checkout_session(request):
-    IS_LIVE = os.environ.get('IS_LIVE')
-    if IS_LIVE == 'True':
-        DOMAIN_URL = 'https://www.fureverprecious.com/'
-    else:
-        DOMAIN_URL = 'http://localhost:8000/'
+    # Send shoppers back to whichever site they're checking out on
+    DOMAIN_URL = request.build_absolute_uri('/')
     
     if request.method == 'POST':
         prev_url = request.META.get('HTTP_REFERER')
