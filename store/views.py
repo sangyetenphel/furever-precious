@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt 
-from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
@@ -159,8 +161,11 @@ def add_cart(request):
         return JsonResponse("Item quantity updated", safe=False)
         
 
+@login_required
+@require_POST
 def delete_cart(request, id):
-    Cart.objects.filter(id=id).delete()
+    # Only the signed-in shopper's own cart items can be removed
+    get_object_or_404(Cart, id=id, user=request.user).delete()
     messages.success(request, "The item has been removed from your cart.")
     return redirect('cart')
 

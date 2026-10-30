@@ -1,7 +1,8 @@
 from django import template
 from store.models import Order, Review
 from django.contrib.auth import authenticate, logout, update_session_auth_hash
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
@@ -80,8 +81,11 @@ def user_profile(request):
     return render(request, 'users/profile.html', context)
 
 
+@login_required
+@require_POST
 def user_review_delete(request, id):
-    Review.objects.get(pk=id).delete()
+    # Only the review's author can delete it
+    get_object_or_404(Review, pk=id, user=request.user).delete()
     messages.success(request, 'Your review has been deleted.')
     return redirect('user-profile')
 

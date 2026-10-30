@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+
+from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 from django.contrib.messages import constants as messages
 import dj_database_url
@@ -27,10 +29,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-52-g+ao3*or)j6!!*td1(er-3d=-51j0f_yx27lc$8a3nw7w3v')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+
+# A throwaway key is only allowed for local development; real deployments must set DJANGO_SECRET_KEY
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('Set the DJANGO_SECRET_KEY environment variable.')
+    SECRET_KEY = 'django-insecure-local-development-only'
 
 ALLOWED_HOSTS = ['www.fureverprecious.com', 'fureverprecious.com', 'furever-precious.herokuapp.com', '127.0.0.1', 'localhost']
 

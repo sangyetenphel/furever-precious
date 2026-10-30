@@ -33,7 +33,10 @@
                                         <small>Price: {{ order.product_variant.price }}</small>
                                         <br>
                                         {% if user.is_authenticated %}
-                                            <a href="{% url 'delete_cart' order.id %}" onclick="return confirm('Remove the item from your cart?');">Remove</a>
+                                            <form method="POST" action="{% url 'delete_cart' order.id %}" class="d-inline" onsubmit="return confirm('Remove the item from your cart?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-link p-0 align-baseline">Remove</button>
+                                            </form>
                                         {% endif %}
                                      </div>        
                                  {% else %}
@@ -45,7 +48,10 @@
                                          <small>Price: {{ order.product.price }}</small>
                                          <br>
                                         {% if user.is_authenticated %}
-                                            <a href="{% url 'delete_cart' order.id %}" class="confirm-delete" data-confirm='Remove the item from your cart?'>Remove</a>
+                                            <form method="POST" action="{% url 'delete_cart' order.id %}" class="d-inline" onsubmit="return confirm('Remove the item from your cart?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-link p-0 align-baseline">Remove</button>
+                                            </form>
                                         {% endif %}
                                      </div>
                                  {% endif %}
@@ -69,10 +75,6 @@
                     <tr>
                         <td>Subtotal</td>
                         <td>${{ sub_total }}</td>
-                    </tr>
-                    <tr>
-                        <td>Tax</td>
-                        <td>$0.00</td>
                     </tr>
                     <tfoot>
                         <tr>

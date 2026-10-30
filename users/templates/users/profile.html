@@ -115,7 +115,10 @@
                                             <p>{{ review.product.name }}</p>
                                             <small>Price: {{ review.product.price }}</small>
                                             <br>
-                                            <a href="{% url 'user-review-delete' review.id %}" class="confirm-delete" data-confirm="Are you sure to remove your review?">Remove</a>
+                                            <form method="POST" action="{% url 'user-review-delete' review.id %}" class="d-inline" onsubmit="return confirm('Are you sure to remove your review?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-link p-0 align-baseline">Remove</button>
+                                            </form>
                                         </div>
                                     </div>     
                                 </td>
